@@ -4,40 +4,104 @@
 <style>
     :root {
         font-family: Calibri, sans-serif;
-        color-scheme: light dark;
-    }
-    body {
-        max-width: 40rem;
+        color: lightgray;
+        background-color: black;
+        max-width: 100ch;
         margin: auto;
+    }
+    a {
+        color: deepskyblue;
+    }
+    a:visited {
+        color: mediumvioletred;
+    }
+    code {
+        color: lightgreen;
+        font-size: 1rem;
+    }
+    section {
+        border-top: lightgray solid 0.5ch;
     }
 </style>
 <h1>klay mu's quick guide to self-hosting</h1>
-<p>
-    This website is hosted on a <a href=
-    "https://www.raspberrypi.com/">Raspberry Pi</a>, but if those aren't available where and when you are, a good alternative is the <a href="https://www.pine64.org/devices/single-board-computers/rock64/">Rock 64</a>. I also recommend some sort of external hard drive so you can hoard all the data you want.
-</p>
-<p>
-    First, go ahead and install whatever flavor of linux you're going to use, I recommend <a href="https://www.armbian.com/">armbian</a>. If your setup is wireless, install 'avahi-daemon' to make it easier to connect over LAN.
-</p>
 
-<h2>Mount your data disk with fstab</h2>
+<section>
+<h2>materials</h2>
 <p>
-    <strong>TODO</strong>
+    this website is hosted on a <a href=
+    "https://www.raspberrypi.com/">Raspberry Pi</a>, but if those aren't available where and when you are, a good alternative is the <a href="https://www.pine64.org/devices/single-board-computers/rock64/">Rock 64</a>. you'll also need a microsd card and an external hard drive, I recommend 64GB and 2TB respectively.
 </p>
+</section>
 
-<h2>Install nginx web server</h2>
+<section>
+<h2>operating system</h2>
 <p>
-    <strong>TODO</strong>
+    first, go ahead and install whatever flavor of linux you're going to use, I recommend <a href="https://www.armbian.com/">armbian</a>. follow the installation steps for your device. if you want to connect via hostname, also install <code>avahi-daemon</code>.
 </p>
+<p>
+    <strong>todo</strong> explain this setup a bit more.
+</p>
+</section>
 
-<h2>Install mariadb database service</h2>
+<section>
+<h2>format storage</h2>
 <p>
-    <strong>TODO</strong>
+    if this is a new disk, format it with ext4. <strong>this will erase everything on the disk.</strong>
 </p>
+<p>
+    unplug the disk. run the command <code>fd</code>. plug the disk back in. run <code>fd</code> again. there should be exactly one new entry, and it should look like <code>/dev/sda</code> or <code>/dev/sdb2</code>. if you're not sure which disk it is, don't risk it, phone a friend. 
+</p>
+<p>
+    format the disk:
+    <br>
+    <code>$ sudo mkfs.ext4 /dev/sda</code>
+</p>
+</section>
 
-<h2>Install an app with podman</h2>
+<section>
+<h2>mount storage</h2>
 <p>
-    <strong>TODO</strong>
-    <pre>$ sudo apt install podman</pre>
-    You may need to run podman as root. As of this writing, Armbian does not support rootless containers.
+    make a mount point:
+    <br>
+    <code>$ sudo mkdir /data</code>
 </p>
+<p>
+    edit fstab:
+    <br>
+    <code>$ sudo nano /etc/fstab</code>
+</p>
+<p>
+    add this line:
+    <br>
+    <code>/dev/sda /data ext4 defaults 0 0</code>
+</p>
+<p>
+    save and exit, then apply the new mount:
+    <br>
+    <code>$ sudo mount -a</code>
+</p>
+</section>
+
+<section>
+<h2>web</h2>
+<p>
+    <strong>todo</strong> install nginx web server
+</p>
+</section>
+
+<section>
+<h2>database</h2>
+<p>
+    <strong>todo</strong> install mariadb database service
+</p>
+</section>
+
+<section>
+<h2>apps</h2>
+<p>
+    <strong>todo</strong> install an app with podman
+</p>
+<p>
+    <code>$ sudo apt install podman uidmap slirp4netns</code>
+</p>
+</section>
