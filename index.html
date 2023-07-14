@@ -23,7 +23,7 @@
         border-top: lightgray solid 0.5ch;
     }
 </style>
-<h1>klay mu's quick guide to self-hosting</h1>
+<h1>klay mu's quick guide to self-hosting, v0.3.0</h1>
 
 <section>
 <h2>materials</h2>
@@ -85,7 +85,16 @@
 <section>
 <h2>web</h2>
 <p>
-    <strong>todo</strong> install nginx web server
+    install nginx web server
+    <br>
+    <code>$ sudo apt install nginx</code>
+</p>
+<p>
+    host your static web content
+    <br>
+    <code>$ sudo mv /var/www/html /data/web</code>
+    <br>
+    <code>$ sudo ln -s /data/web /var/www/html</code>
 </p>
 </section>
 
