@@ -23,7 +23,7 @@
         border-top: lightgray solid 0.5ch;
     }
 </style>
-<h1>klay mu's quick guide to self-hosting, v0.4.3</h1>
+<h1>klay mu's quick guide to self-hosting, v0.4.4</h1>
 
 <section>
 <h2>materials</h2>
@@ -99,7 +99,7 @@
 </section>
 
 <section>
-<h2>mount storage</h2>
+<h2>mount storage (updated in v0.4.4)</h2>
 <p>
     Linux doesn't use drive letters like Windows does. Instead, every disk's filesystem lives at some <em>path</em>. the "main" path is <code>/</code>, a single slash, and usually belongs to the main disk, in this case the MicroSD card. we'll create a new path at <code>/data</code> for our data disk.
 </p>
@@ -149,22 +149,48 @@
 </section>
 
 <section>
-    <h2>apps</h2>
-    <p>
-        <code>$ sudo apt install podman uidmap slirp4netns</code>
-    </p>
-    <p>
-        <strong>todo</strong> install an app with podman
-    </p>
+<h2>apps (new in v0.4.4)</h2>
+<p>
+    at this point, we'll take a detour and talk about containers. everything we've done so far has involved making changes to system files. if you need to copy your data to a new system you'll have to change all those system files again, and this gets more complicated the more things are installed. thankfully, most useful applications can now be installed as <strong>containers</strong>, which <em>contain</em> all their own data and system files. think of the host machine as a <a href="https://www.ikea.com/us/en/cat/kallax-shelving-units-58285/">shelf</a>, and each container as a cubby on that shelf. this added structure keeps apps from touching each other's files, and makes it easier to remove things later.
+</p> 
+<p>
+    we'll be using <a href="https://podman.io/">Podman</a>, a container host service that allows you to work with either individual containers, or with groups of containers called <strong>pods</strong>. in our shelf analogy, a pod is a cubby which has been sub-divided into <a href="https://www.ikea.com/us/en/cat/inserts-accessories-for-kallax-58286/">more cubbies</a>, but still takes up a single space on the original shelf.
+</p>
+<p>
+    podman has a few optional packages that I recommend, we'll install them all now:
+    <br>
+    <code>$ sudo apt install podman uidmap slirp4netns python3-pip</code>
+    <br>
+    <code>$ sudo pip install podman-compose</code>
+</p>
+<ul>
+    <li>uidmap: needed to make fake users inside a container, necessary when running a container <strong>rootless</strong>, without sudo.</li>
+    <li>slirp4netns: used to make private networks between containers.</li>
+    <li>python3-pip: an alternative package manager specifically for <a href="https://www.python.org/">Python</a> programs, we need this to install <a href="https://github.com/containers/podman-compose#podman-compose">podman-compose</a>.</li>
+    <li>podman-compose: a very handy tool that lets you store your container instructions in a script file to use later, we'll cover this soon!</li>
+</ul>
+<p>
+    let's test it out by running <a href="https://nginx.org/">nginx</a> (pronounced 'engine-x'), a simple and fast web server. we'll use the image published by <a href="https://hub.docker.com/">Docker Hub</a>. think of an <strong>image</strong> as a photo negative or a resin mold: you can't run an image directly, but you can use it to produce a filled container.
+    <br>
+    <code>$ podman run --rm -p 9000:80 docker.io/library/nginx</code>
+</p>
+<ul>
+    <li>podman run: create a new container and start it immediately.</li>
+    <li>--rm: remove the container automatically when the main program exits.</li>
+    <li>-p 9000:80: connect port 9000 on the host to port 80 inside the container. ports are like the networking equivalent of a post office box or a room number, they allow you to send messages to a specific program inside a machine. web browsers send messages to port 80 by default, so that's what nginx is listening for, but we need special permission to bind to ports less than 1024, since they're like the really fancy penthouse suites of the port world. without special permission, we can use any port between 1024 and 65535. 9000 is an arbitrary, easy-to-remember choice.</li>
+    <li>docker.io/library/nginx: the name of the image we're building. this has to come last, because anything that comes after the image name is instructions for the program inside the container, not for podman. in this case we're not giving any instructions after the image name though, because we want to run the default command for this image.</li>
+</ul>
+<p>
+    <br>
+    if you get an error like "delete libpod local files to resolve", then you may need to do this extra step, then try again:
+    <br>
+    <code>$ sudo rm ~/.local/share/containers</code>
+    <br>
+    otherwise, you should now be able to point a web browser at <a href="http://teapot.local:9000">http://teapot.local:9000</a> and you will see the nginx test page!
+</p>
 </section>
 
 <!-- <section>
-<h2>web</h2>
-<p>
-    install nginx web server
-    <br>
-    <code>$ sudo apt install nginx</code>
-</p>
 <p>
     host your static web content
     <br>
