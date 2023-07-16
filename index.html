@@ -36,53 +36,107 @@
 <section>
 <h2>operating system</h2>
 <p>
-    first, go ahead and install whatever flavor of linux you're going to use, I recommend <a href="https://www.armbian.com/">armbian</a>. follow the installation steps for your device. if you want to connect via hostname, also install <code>avahi-daemon</code>.
+    first, go ahead and install whatever flavor of linux you're going to use, I recommend <a href="https://www.armbian.com/">armbian</a>. follow the installation steps for your device.
 </p>
 <p>
-    <strong>todo</strong> explain this setup a bit more.
+    right after installing the os, it's a good time to set your hostname. for this example I'll use 'teapot'.
+    <br>
+    <code>$ sudo hostnamectl set-hostname teapot</code>
+    I'd like to be able to connect to this hostname via LAN, too. there's a tool for this called <code>avahi-daemon</code>.
+    <br>
+    <code>$ sudo apt install avahi-daemon</code>
+    <br>
+    you should now be able to ssh into the server from another machine, with
+    <br>
+    <code>ssh yourname@teapot</code>
+    <br>
+    or
+    <br>
+    <code>ssh yourname@teapot.local</code>
 </p>
 </section>
 
 <section>
 <h2>format storage</h2>
 <p>
-    if this is a new disk, format it with ext4. <strong>this will erase everything on the disk.</strong>
+    the raspberry pi and the rock64 both use a microsd card as the operating system disk. it's clever; if the os breaks you can just pull its brain out, factory reset it, and pop it back in. however, I don't want to store all my user data on that brain card. I think it's better if you have a secondary disk that contains <em>only</em> the stuff you create yourself. that way if something goes wrong and you have to reset the brain card, you don't lose any of your pictures or music or whatever.
 </p>
 <p>
-    unplug the disk. run the command <code>fd</code>. plug the disk back in. run <code>fd</code> again. there should be exactly one new entry, and it should look like <code>/dev/sda</code> or <code>/dev/sdb2</code>. if you're not sure which disk it is, don't risk it, phone a friend. 
+    there are different formats for a data disk. the format determines exactly where the data and metadata will appear in each 'chunk' on the disk. windows typically uses <a href="https://en.wikipedia.org/wiki/NTFS">NTFS</a>, which supports metadata for ownership and modified time, but not for fine-grained access like whether guests are allowed to open the file in read-only mode. linux uses a format that does allow this fine-grained access, called <a href="https://en.wikipedia.org/wiki/Ext4">ext4</a>, so that's what we need to format our data disk as.
+</p>
+<p>
+    <strong>⚠️ warning! this will erase everything on the disk!</strong>
+</p>
+<p>
+    first we need to identify the disk's device file. in linux, everything you can read or write to is treated as a file, including a usb device like an external disk. note that this device file is not the same as a mount. we'll cover mounting later.
+</p>
+<p>
+    unplug the disk. run the command <code>fd</code>. plug the disk back in. run <code>fd</code> again, and compare its output to before. there should be exactly one new entry, and it should look like <code>/dev/sda</code> or <code>/dev/sdb2</code>. if you're not sure which disk it is, don't risk it, phone a friend. 
 </p>
 <p>
     format the disk:
     <br>
     <code>$ sudo mkfs.ext4 /dev/sda</code>
+    <br>
+    and label it:
+    <br>
+    <code>sudo e2label /dev/sda teapot-data</code>
 </p>
 </section>
 
 <section>
 <h2>mount storage</h2>
 <p>
-    make a mount point:
-    <br>
+    linux doesn't use drive letters like windows does. Instead, every disk lives at some <em>path</em>. the "main" path is <code>/</code>, a single slash. we'll create a path at <code>/data</code> for our data disk.
+</p>
+<p>
     <code>$ sudo mkdir /data</code>
+</p>
+<p>
+    when the system boots up, it looks in the special file <code>/etc/fstab</code> to find out what disks live at what paths. since we gave our disk a label earlier, we can mount it using that label. 
 </p>
 <p>
     edit fstab:
     <br>
     <code>$ sudo nano /etc/fstab</code>
-</p>
-<p>
+    <br>
+    <br>
     add this line:
     <br>
-    <code>/dev/sda /data ext4 defaults 0 0</code>
+    <code>LABEL=teapot-data /data ext4 nofail,x-systemd.device-timeout=5s,x-systemd.automount 0 0</code>
 </p>
 <p>
-    save and exit, then apply the new mount:
+    there's a lot going on here. you can <a href="https://www.freedesktop.org/software/systemd/man/systemd.mount.html#fstab">read more</a> about how fstab and systemd work together, but basically what we're saying is:
+</p>
+<ul>
+    <li>find the disk labeled "teapot-data" and mount it at /data, as an ext4 filesystem.</li>
+    <li>nofail: if the disk is missing at boot time, finish booting anyway.</li>
+    <li>x-systemd.automount: if someone tries to access the disk and it's not mounted, try mounting it again.</li>
+</ul>
+<p>
+    we're using a delayed mounting process here because we want to make sure our server still comes online, even if the disk fails to load. if the server crashed on boot we'd have to go physically plug in a keyboard and monitor to fix it. with nofail, we can still log in remotely.
+</p>
+<p>
+    save and exit the file if you haven't already, then try applying the mount:
     <br>
     <code>$ sudo mount -a</code>
+    <br>
+    now is also a good time to reboot the machine and make sure it starts up correctly:
+    <code>$ sudo reboot now</code>
 </p>
 </section>
 
 <section>
+    <h2>apps</h2>
+    <p>
+        <code>$ sudo apt install podman uidmap slirp4netns</code>
+    </p>
+    <p>
+        <strong>todo</strong> install an app with podman
+    </p>
+</section>
+
+<!-- <section>
 <h2>web</h2>
 <p>
     install nginx web server
@@ -103,14 +157,4 @@
 <p>
     <strong>todo</strong> install mariadb database service
 </p>
-</section>
-
-<section>
-<h2>apps</h2>
-<p>
-    <strong>todo</strong> install an app with podman
-</p>
-<p>
-    <code>$ sudo apt install podman uidmap slirp4netns</code>
-</p>
-</section>
+</section> -->
