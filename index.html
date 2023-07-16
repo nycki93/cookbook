@@ -13,7 +13,7 @@
         color: deepskyblue;
     }
     a:visited {
-        color: mediumvioletred;
+        color: deeppink;
     }
     code {
         color: lightgreen;
@@ -23,7 +23,7 @@
         border-top: lightgray solid 0.5ch;
     }
 </style>
-<h1>klay mu's quick guide to self-hosting, v0.4.0</h1>
+<h1>klay mu's quick guide to self-hosting, v0.4.1</h1>
 
 <section>
 <h2>materials</h2>
@@ -42,10 +42,17 @@
     right after installing the os, it's a good time to set your hostname. for this example I'll use 'teapot'.
     <br>
     <code>$ sudo hostnamectl set-hostname teapot</code>
+    <br>
     I'd like to be able to connect to this hostname via LAN, too. there's a tool for this called <code>avahi-daemon</code>.
     <br>
     <code>$ sudo apt install avahi-daemon</code>
+</p>
+<p>
+    this is a good time to reboot, to make sure the updated hostname is in use:
     <br>
+    <code>$ sudo reboot now</code>
+</p>
+<p>
     you should now be able to ssh into the server from another machine, with
     <br>
     <code>ssh yourname@teapot</code>
@@ -80,14 +87,14 @@
     <br>
     and label it:
     <br>
-    <code>sudo e2label /dev/sda teapot-data</code>
+    <code>$ sudo e2label /dev/sda teapot-data</code>
 </p>
 </section>
 
 <section>
 <h2>mount storage</h2>
 <p>
-    linux doesn't use drive letters like windows does. Instead, every disk lives at some <em>path</em>. the "main" path is <code>/</code>, a single slash. we'll create a path at <code>/data</code> for our data disk.
+    linux doesn't use drive letters like windows does. Instead, every disk lives at some <em>path</em>. the "main" path is <code>/</code>, a single slash, and usually belongs to the main disk, in this case the microsd card. we'll create a new path at <code>/data</code> for our data disk.
 </p>
 <p>
     <code>$ sudo mkdir /data</code>
