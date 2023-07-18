@@ -19,6 +19,11 @@
         color: lightgreen;
         font-size: 1rem;
     }
+    pre {
+        color: lightgreen;
+        font-size: 1rem;
+        margin-left: 2ch;
+    }
     section {
         border-top: lightgray solid 0.5ch;
     }
@@ -40,40 +45,40 @@ first, go ahead and install whatever flavor of Linux you're going to use, I reco
 <p>
 after installing the os is a good time do to some initial setup. while you're connected as root, update your installed packages:
 <p>
-<code>
-    # apt update<br>
-    # apt upgrade
-</code>
+<pre>
+# apt update
+# apt upgrade
+</pre>
 <p>
 set your hostname, this is how you will appear to other computers on the network. for this example I'll use 'teapot'.
 <p>
-<code>
-    # hostnamectl set-hostname teapot
-</code>
+<pre>
+# hostnamectl set-hostname teapot
+</pre>
 <p>
 I'd like to be able to connect to this hostname via LAN, too. there's a tool for this called 'avahi-daemon'.
 <p>
-<code>
-    # apt install avahi-daemon
-</code>
+<pre>
+# apt install avahi-daemon
+</pre>
 <p>
 this is a good time to reboot, to make sure the updated hostname is in use:
 <p>
-<code>
-    # reboot
-</code>
+<pre>
+# reboot
+</pre>
 <p>
 you should now be able to ssh into the server from another machine, with
 <p>
-<code>
-    ssh yourname@teapot
-</code>
-<br>
+<pre>
+ssh yourname@teapot
+</pre>
+
     or
-<br>
-<code>
-    ssh yourname@teapot.local
-</code>
+
+<pre>
+ssh yourname@teapot.local
+</pre>
 </section>
 
 <section>
@@ -91,15 +96,15 @@ unplug the disk. run the command <code>fd</code>. plug the disk back in. run <co
 <p>
 format the disk:
 <p>
-<code>
-    $ sudo mkfs.ext4 /dev/sda
-</code>
+<pre>
+$ sudo mkfs.ext4 /dev/sda
+</pre>
 <p>
 and label it:
 <p>
-<code>
-    $ sudo e2label /dev/sda teapot-data
-</code>
+<pre>
+$ sudo e2label /dev/sda teapot-data
+</pre>
 </section>
 
 <section>
@@ -107,23 +112,23 @@ and label it:
 <p>
 Linux doesn't use drive letters like Windows does. Instead, every disk's filesystem lives at some <em>path</em>. the "main" path is <code>/</code>, a single slash, and usually belongs to the main disk, in this case the MicroSD card. we'll create a new path at <code>/data</code> for our data disk.
 <p>
-<code>
-    $ sudo mkdir /data
-</code>
+<pre>
+$ sudo mkdir /data
+</pre>
 <p>
 when the system boots up, it looks in the system file <code>/etc/fstab</code> to find out what disks live at what paths. since we gave our disk a label earlier, we can mount it using that label. 
 <p>
 edit fstab:
 <p>
-<code>
-    $ sudo nano /etc/fstab
-</code>
+<pre>
+$ sudo nano /etc/fstab
+</pre>
 <p>
 add this line:
 <p>
-<code>
-    LABEL=teapot-data /data ext4 nofail,x-systemd.device-timeout=5s,x-systemd.automount 0 0
-</code>
+<pre>
+LABEL=teapot-data /data ext4 nofail,x-systemd.device-timeout=5s,x-systemd.automount 0 0
+</pre>
 <p>
 there's a lot going on here. you can <a href="https://www.freedesktop.org/software/systemd/man/systemd.mount.html#fstab">read more</a> about how fstab and systemd work together, but basically what we're saying is:
 <ul>
@@ -137,9 +142,9 @@ we're using a delayed mounting process here because we want to make sure our ser
 <p>
 save and exit the file if you haven't already, then check it:
 <p>    
-<code>
-    $ sudo mount --all --fake --verbose
-</code>
+<pre>
+$ sudo mount --all --fake --verbose
+</pre>
 <ul>
     <li>all: apply all the rules from <code>/etc/fstab</code>.</li>
     <li>fake: don't <em>actually</em> apply the rules, just check that they're written correctly.</li>
@@ -148,9 +153,9 @@ save and exit the file if you haven't already, then check it:
 <p>
 if all your mounts pass inspection, now is a good time to reboot the machine:
 <p>
-<code>
-    $ sudo reboot now
-</code>
+<pre>
+$ sudo reboot now
+</pre>
 </section>
 
 <section>
@@ -162,10 +167,10 @@ we'll be using <a href="https://podman.io/">Podman</a>, a container host service
 <p>
 podman has a few optional packages that I recommend, we'll install them all now:
 <p>
-<code>
-    $ sudo apt install podman uidmap slirp4netns python3-pip<br>
-    $ sudo pip install podman-compose==1.0.3
-</code>
+<pre>
+$ sudo apt install podman uidmap slirp4netns python3-pip
+$ sudo pip install podman-compose==1.0.3
+</pre>
 <ul>
     <li>uidmap: needed to make fake users inside a container, necessary when running a container <strong>rootless</strong>, without sudo.</li>
     <li>slirp4netns: used to make private networks between containers.</li>
@@ -175,31 +180,62 @@ podman has a few optional packages that I recommend, we'll install them all now:
 <p>
 let's test it out by running <a href="https://nginx.org/">nginx</a> (pronounced 'engine-x'), a simple and fast web server. we'll use the image published by <a href="https://hub.docker.com/">Docker Hub</a>. think of an <strong>image</strong> as a photo negative or a resin mold: you can't run an image directly, but you can use it to produce a filled container.
 <p>
-<code>
-    $ podman run --rm -p 9000:80 docker.io/library/nginx
-</code>
+<pre>
+$ podman run --rm -p 9000:80 docker.io/library/nginx
+</pre>
 <ul>
     <li>podman run: create a new container and start it immediately.</li>
     <li>--rm: remove the container automatically when the main program exits.</li>
-    <li>-p 9000:80: connect port 9000 on the host to port 80 inside the container. ports are like the networking equivalent of a post office box or a room number, they allow you to send messages to a specific program inside a machine. web browsers send messages to port 80 by default, so that's what nginx is listening for, but we need special permission to bind to ports less than 1024, since they're like the really fancy penthouse suites of the port world. without special permission, we can use any port between 1024 and 65535. 9000 is an arbitrary, easy-to-remember choice.</li>
+    <li>-p 9000:80: connect port 9000 on the host to port 80 inside the container. ports are like the networking equivalent of a post office box or a room number, they allow you to send messages to a specific program inside a machine. web browsers send messages to port 80 by default, so that's what nginx is listening for, but we need permission to bind to ports less than 1024, since they're older and have special meanings. without that permission, we can use any port between 1024 and 65535. 9000 is an arbitrary, easy-to-remember choice.</li>
     <li>docker.io/library/nginx: the name of the image we're building. this has to come last, because anything that comes after the image name is instructions for the program inside the container, not for podman. in this case we're not giving any instructions after the image name though, because we want to run the default command for this image.</li>
 </ul>
 <p>
 if you get an error like "delete libpod local files to resolve", then you may need to do this extra step, then try again:
 <p>
-<code>
-    $ sudo rm ~/.local/share/containers
-</code>
+<pre>
+$ sudo rm ~/.local/share/containers
+</pre>
 <p>
 otherwise, you should now be able to point a web browser at <a href="http://teapot.local:9000">http://teapot.local:9000</a> and you will see the nginx test page!
+<p>
+now, the final piece: we'll use podman-compose to save our settings for this container. create a folder in <code>/data</code> for this container, and make a new file called <code>compose.yaml</code>.
+<p>
+<pre>
+$ sudo mkdir /data/nginx
+$ cd /data/nginx
+$ sudo nano compose.yaml
+</pre>
+<p>
+contents of <code>compose.yaml</code>:
+<p>
+<pre>
+version: '3'
+services:
+  nginx:
+    image: docker.io/library/nginx
+    ports:
+      - 9000:80
+</pre>
+<p>
+this does the same thing as our command from before. it starts one service container, running nginx, with port 9000 on the host mapped to port 80 in the container. to run this script, type
+<p>
+<pre>
+$ sudo podman-compose up -d
+</pre>
+<p>
+and to stop it again:
+<p>
+<pre>
+$ sudo podman-compose down
+</pre>
 </section>
 
 <!-- <section>
 <p>
     host your static web content
-    <br>
+    
     <code>$ sudo mv /var/www/html /data/web</code>
-    <br>
+    
     <code>$ sudo ln -s /data/web /var/www/html</code>
 </p>
 </section>
