@@ -36,7 +36,7 @@
 <section>
 <h2>operating system</h2>
 <p>
-    first, go ahead and install whatever flavor of linux you're going to use, I recommend <a href="https://www.armbian.com/">armbian</a>. follow the installation steps for your device. you may need to plug in an external keyboard and monitor for this step. the installation should walk you through creating a new username and password, I recommend a <a href="https://xkcd.com/936/">long but memorable phrase</a>.
+    first, go ahead and install whatever flavor of Linux you're going to use, I recommend <a href="https://www.armbian.com/">armbian</a>. follow the installation steps for your device. you may need to plug in an external keyboard and monitor for this step. the installation should walk you through creating a new username and password, I recommend a <a href="https://xkcd.com/936/">long but memorable phrase</a>.
 </p>
 <p>
     after installing the os is a good time do to some initial setup. while you're connected as root, update your installed packages:
@@ -76,13 +76,13 @@
     the Raspberry Pi and the ROCK64 both use a MicroSD card as the operating system disk. it's clever; if the os breaks you can just pull its brain out, factory reset it, and pop it back in. however, I don't want to store all my user data on that brain card. I think it's better if you have a secondary disk that contains <em>only</em> the stuff you create yourself. that way if something goes wrong and you have to reset the brain card, you don't lose any of your pictures or music or whatever.
 </p>
 <p>
-    there are different formats for a data disk. the format determines exactly where the data and metadata will appear in each 'chunk' on the disk. windows typically uses <a href="https://en.wikipedia.org/wiki/NTFS">NTFS</a>, which supports metadata for ownership and modified time, but not for fine-grained access like whether guests are allowed to open the file in read-only mode. linux uses a format that does allow this fine-grained access, called <a href="https://en.wikipedia.org/wiki/Ext4">ext4</a>, so that's what we need to format our data disk as.
+    there are different formats for a data disk. the format determines exactly where the data and metadata will appear in each 'chunk' on the disk. windows typically uses <a href="https://en.wikipedia.org/wiki/NTFS">NTFS</a>, which supports metadata for ownership and modified time, but not for fine-grained access like whether guests are allowed to open the file in read-only mode. Linux uses a format that does allow this fine-grained access, called <a href="https://en.wikipedia.org/wiki/Ext4">ext4</a>, so that's what we need to format our data disk as.
 </p>
 <p>
     <strong>⚠️ warning! this will erase everything on the disk!</strong>
 </p>
 <p>
-    first we need to identify the disk's device file. in linux, everything you can read or write to is treated as a file, including a usb device like an external disk. note that this device file is not the same as a filesystem mount. we'll cover mounting later.
+    first we need to identify the disk's device file. in Linux, everything you can read or write to is treated as a file, including a usb device like an external disk. note that this device file is not the same as a filesystem mount. we'll cover mounting later.
 </p>
 <p>
     unplug the disk. run the command <code>fd</code>. plug the disk back in. run <code>fd</code> again, and compare its output to before. there should be exactly one new entry, and it should look like <code>/dev/sda</code> or <code>/dev/sdb2</code>. if you're not sure which disk it is, don't risk it, phone a friend. 
@@ -149,7 +149,7 @@
 </section>
 
 <section>
-<h2>apps (new in v0.4.4)</h2>
+<h2>apps (updated in v0.5.0)</h2>
 <p>
     at this point, we'll take a detour and talk about containers. everything we've done so far has involved making changes to system files. if you need to copy your data to a new system you'll have to change all those system files again, and this gets more complicated the more things are installed. thankfully, most useful applications can now be installed as <strong>containers</strong>, which <em>contain</em> all their own data and system files. think of the host machine as a <a href="https://www.ikea.com/us/en/cat/kallax-shelving-units-58285/">shelf</a>, and each container as a cubby on that shelf. this added structure keeps apps from touching each other's files, and makes it easier to remove things later.
 </p> 
@@ -161,7 +161,7 @@
     <br>
     <code>$ sudo apt install podman uidmap slirp4netns python3-pip</code>
     <br>
-    <code>$ sudo pip install podman-compose</code>
+    <code>$ sudo pip install podman-compose==1.0.3</code>
 </p>
 <ul>
     <li>uidmap: needed to make fake users inside a container, necessary when running a container <strong>rootless</strong>, without sudo.</li>
