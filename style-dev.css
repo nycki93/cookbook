@@ -1,0 +1,22 @@
+:root {
+    font-family: Calibri, sans-serif;
+    color: lightgray;
+    background-color: black;
+    max-width: 100ch;
+    margin: auto;
+    padding: 1ch;
+}
+a {
+    color: steelblue;
+}
+code {
+    color: lightgreen;
+}
+pre {
+    color: lightgreen;
+    margin-left: 2ch;
+    white-space: pre-wrap;
+}
+section {
+    border-top: lightgray solid 0.5ch;
+}

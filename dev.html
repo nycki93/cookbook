@@ -1,70 +1,44 @@
 <!doctype html>
 <html lang="en">
 <meta charset="utf-8">
+<link rel="stylesheet" href="style-dev.css">
 <title>
-klay mu's quick guide to self-hosting
+klay's simple self-host cookbook
 </title>
-<style>
-    :root {
-        font-family: Calibri, sans-serif;
-        color: lightgray;
-        background-color: black;
-        max-width: 100ch;
-        margin: auto;
-    }
-    a {
-        color: deepskyblue;
-    }
-    a:visited {
-        color: deeppink;
-    }
-    code {
-        color: lightgreen;
-        font-size: 1rem;
-    }
-    pre {
-        color: lightgreen;
-        font-size: 1rem;
-        margin-left: 2ch;
-        white-space: pre-wrap;
-    }
-    section {
-        border-top: lightgray solid 0.5ch;
-    }
-</style>
 
 <nav>
 <a href="/">home</a>
 | <a href=".">latest</a>
+| <a href="v0.5.2">v0.5.2</a>
 </nav>
 
-<h1>klay's self-host cookbook, v0.5.1</h1>
+<h1>klay's simple self-host cookbook, v0.5.3</h1>
 
 <section>
 <h2>audience</h2>
-who is this guide for? well, let me give some context first.
+this guide is for me. I wasn't happy with the other tutorials on this subject.
 <p>
-there's an old <a href="https://www.reddit.com/r/geek/comments/4zl3e1/happy_birthday_linux_heres_your_cake/">joke</a> that using Linux is like ordering a cake and receiving a bunch of flour, sugar, butter, and eggs. a guide is "too general" if it goes on at length about folding wheat proteins to form gluten. a guide is "too specific" if it requires a box of pre-made cake mix. what I want is a guide that tells me how to make a specific cake, but also tells me what each ingredient does and when I can substitute it. I want a cookbook.
+there's an old <a href="https://www.reddit.com/r/geek/comments/4zl3e1/happy_birthday_linux_heres_your_cake/">joke</a> that using Linux is like ordering a cake and receiving a bunch of flour, sugar, butter, and eggs. so, practically, you need some sort of assembly instructions. you could start from an organic chemistry textbook, starting all the way from how wheat proteins fold to form gluten, but that's overwhelming if you just want a cake. or you could read the instructions on the back of a box of cake mix, but that's <em>under</em>whelming, and you don't learn anything at all. you want a recipe, with hints on how to make substitutions. so that's what this is. it's a cookbook, for people like me.
 <p>
-so, this guide is aimed at the budding chef of programmers. I assume you already find code beautiful for its own sake. you know about <a href="https://esolangs.org/">esolangs</a> or <a href="https://conlang.org/">conlangs</a>. you've read <a href="https://archive.org/details/godelescherbachaneternalgoldenbraiddouglasr.hofstadter"><em>Godel, Escher, Bach</em></a> or at least <a href="https://xkcd.com/">xkcd</a>. you're old enough to have used <a href="https://en.wikipedia.org/wiki/Internet_Relay_Chat">IRC</a> or young enough to have played <a href="https://minecraft.fandom.com/wiki/Tutorials/Setting_up_a_server">Minecraft</a>. you understand that 'the cloud' is just other peoples' computers.
+if you're like me, you already find code inherently fun and beautiful. you know about <a href="https://esolangs.org/">esolangs</a> and <a href="https://conlang.org/">conlangs</a>. you've read <a href="https://archive.org/details/godelescherbachaneternalgoldenbraiddouglasr.hofstadter"><em>Godel, Escher, Bach</em></a> or at least <a href="https://xkcd.com/">xkcd</a>. you're old enough to have used <a href="https://en.wikipedia.org/wiki/Internet_Relay_Chat">IRC</a> or young enough to have played <a href="https://minecraft.fandom.com/wiki/Tutorials/Setting_up_a_server">Minecraft</a>. you understand that 'the cloud' is just other peoples' computers.
 <p>
-and you want one of them to be yours.
+so let's get cooking.
 </section>
 
 <section>
 <h2>materials</h2>
-I'll be using a <a href="https://www.raspberrypi.com/">Raspberry Pi</a>, but if those aren't available where and when you are, a good alternative is the <a href="https://www.pine64.org/devices/single-board-computers/rock64/">ROCK64</a>. you'll also need a MicroSD card, I recommend 64GB, and a hard drive, I recommend 2TB, plus a second hard drive for backup. the pi can just about power one hard drive on its own, but if you want to plug both in at once you'll need a powered hard drive enclosure or a powered usb hub.
+I'll be using a <a href="https://www.raspberrypi.com/">Raspberry Pi 4b</a> and installing <a href="https://www.armbian.com/">armbian v23.5.1</a>. if the Raspberry Pi isn't available where and when you are, a good alternative is the <a href="https://www.pine64.org/devices/single-board-computers/rock64/">ROCK64</a>. you'll also need a MicroSD card, I recommend 64GB, and a hard drive, I recommend 2TB, plus a second hard drive for backup. the pi can just about power one hard drive on its own, but if you want to plug both in at once you'll need a powered hard drive enclosure or a powered usb hub.
 <p>
 you can adapt these directions to any machine that can run <a href="https://www.debian.org/doc/">Debian</a>, like an old laptop or desktop pc. you can also rent a virtual machine running in a remote datacenter. the cheapest virtual machine on <a href="https://www.digitalocean.com/">DigitalOcean</a> is only $6/mo as of this writing, and comes with 25GB of storage. renting a machine in a datacenter means you get the perks of high-speed internet all day and night, great if you're running a game server and need a fast connection. however, you'll pay about $10/mo for every additional 100GB of storage, so it's not great if you want to host a huge media archive.
 </section>
 
 <section>
 <h2>operating system</h2>
-first, go ahead and install whatever flavor of Linux you're going to use, I recommend <a href="https://www.armbian.com/">armbian</a>. there are lots of guides on how to install Linux already, follow the ones for your machine. you may need to plug in an external keyboard and monitor for this step, but we can unplug those later, giving us a "headless" server. 
+first, download and install the operating system. there are lots of guides on how to install Linux already, <a href="https://docs.armbian.com/User-Guide_Getting-Started/">here's</a> one for armbian. you may need to plug in an external keyboard and monitor for this step. we can unplug those later, giving us a CLI or "headless" server. 
 <p>
-the installation should walk you through creating a new username and password, I recommend <a href="https://xkcd.com/936/">a long random phrase</a>. write it down. you can't hack a piece of paper.
+the installation should walk you through creating a new username and password, I recommend <a href="https://xkpasswd.net/s/">a long random phrase</a>. write it down. you can't hack a piece of paper.
 <p>
-after installing the os is a good time do to some initial setup. log in as 'root', the built-in administrator account. if your install guide doesn't provide a root login, then use this command to borrow one:
+log in as 'root', the built-in administrator account. if your install guide doesn't provide a root login, then use this command to borrow one.
 <pre>
 $ sudo su
 </pre>
@@ -89,11 +63,11 @@ this is a good time to reboot, to make sure the updated hostname is in use:
 </pre>
 you should now be able to log into the server from another machine, with
 <pre>
-> ssh yourname@teapot
+$ ssh yourname@teapot
 </pre>
 or
 <pre>
-> ssh yourname@teapot.local
+$ ssh yourname@teapot.local
 </pre>
 </section>
 
@@ -121,7 +95,7 @@ $ sudo e2label /dev/sda teapot-data
 
 <section>
 <h2>mount storage</h2>
-Linux doesn't use drive letters like Windows does. Instead, every disk's filesystem lives at some <em>path</em>. the "main" path is <code>/</code>, a single slash, and usually belongs to the main disk, in this case the MicroSD card. we'll create a new path at <code>/data</code> for our data disk.
+Linux doesn't use drive letters like Windows does. Instead, every disk's filesystem lives at some <em>path</em>. the main, or "root" path is <code>/</code>, a single slash, and usually belongs to the main disk, in this case the MicroSD card. we'll create a new path at <code>/data</code> for our data disk.
 <p>
 <pre>
 $ sudo mkdir /data
@@ -150,11 +124,11 @@ save and exit the file if you haven't already, then check it:
 $ sudo mount --all --fake --verbose
 </pre>
 <ul>
-    <li>all: apply all the rules from <code>/etc/fstab</code>.</li>
-    <li>fake: don't <em>actually</em> apply the rules, just check that they're written correctly.</li>
-    <li>verbose: give detailed feedback. Linux programs typically say nothing unless there is an error.</li>
+    <li>--all: apply all the rules from <code>/etc/fstab</code>.</li>
+    <li>--fake: don't <em>actually</em> apply the rules, just check that they're written correctly.</li>
+    <li>--verbose: give detailed feedback. Linux programs typically say nothing unless there is an error.</li>
 </ul>
-if all your mounts pass inspection, now is a good time to reboot the machine:
+if all your mounts pass inspection, now is a good time to reboot the machine.
 <pre>
 $ sudo reboot now
 </pre>
@@ -187,6 +161,8 @@ $ sudo pip install podman-compose==1.0.3
     <li>python3-pip: an alternative package manager specifically for <a href="https://www.python.org/">Python</a> programs, we need this to install <a href="https://github.com/containers/podman-compose#podman-compose">podman-compose</a>.</li>
     <li>podman-compose: a very handy tool that lets you store your container instructions in a script file to use later, we'll cover this soon!</li>
 </ul>
+<strong>💡 I had compatibility issues with podman-compose v1.0.6 during this writing. use v1.0.3 for now.</strong>
+<p>
 let's test it out by running <a href="https://nginx.org/">nginx</a> (pronounced 'engine-x'), a simple and fast web server. we'll use the image published by <a href="https://hub.docker.com/">Docker Hub</a>. think of an <strong>image</strong> as a photo negative or a resin mold: you can't run an image directly, but you can use it to produce a filled container.
 <pre>
 $ podman run --rm -p 9000:80 docker.io/library/nginx
@@ -203,7 +179,7 @@ $ sudo rm ~/.local/share/containers
 </pre>
 otherwise, you should now be able to point a web browser at <a href="http://teapot.local:9000">http://teapot.local:9000</a> and you will see the nginx test page!
 <p>
-now, the final piece: we'll use podman-compose to save our settings for this container. create a folder in <code>/data</code> for this container, and make a new file called <code>compose.yaml</code>.
+finally, we'll use podman-compose to save our setup. create a folder in <code>/data</code> for this container, and make a new file called <code>compose.yaml</code>.
 <pre>
 $ sudo mkdir /data/nginx
 $ cd /data/nginx
@@ -234,4 +210,6 @@ todo
 - configure nginx to serve php content too
 - set up a database?
 - host a dockerized app with nginx proxy-pass 
+- firewall safety
+- hosting from your home router (with hairpin/reflection NAT)
 -->
