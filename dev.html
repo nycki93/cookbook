@@ -16,9 +16,9 @@ klay's simple self-host cookbook
 
 <section>
 <h2>audience</h2>
-this guide is for me. I wasn't happy with the other tutorials on this subject.
+this guide is for people like me. I wasn't happy with the other tutorials on this subject. I was tired of starting from complete scratch, and also tired of "solutions" that are one huge pile of scripts that could break down at any time.
 <p>
-there's an old <a href="https://www.reddit.com/r/geek/comments/4zl3e1/happy_birthday_linux_heres_your_cake/">joke</a> that using Linux is like ordering a cake and receiving a bunch of flour, sugar, butter, and eggs. so, practically, you need some sort of assembly instructions. you could start from an organic chemistry textbook, starting all the way from how wheat proteins fold to form gluten, but that's overwhelming if you just want a cake. or you could read the instructions on the back of a box of cake mix, but that's <em>under</em>whelming, and you don't learn anything at all. you want a recipe, with hints on how to make substitutions. so that's what this is. it's a cookbook, for people like me.
+there's an old <a href="https://www.reddit.com/r/geek/comments/4zl3e1/happy_birthday_linux_heres_your_cake/">joke</a> that using Linux is like ordering a cake and receiving a bunch of flour, sugar, butter, and eggs. you could start from an organic chemistry textbook, starting all the way from how wheat proteins fold to form gluten, but that's overwhelming if you just want a cake. or you could read the instructions on the back of a box of cake mix, but that's <em>under</em>whelming, and you don't learn anything at all. you want a recipe, with hints on how to make substitutions. so that's what this is. it's a cookbook, for people like me.
 <p>
 if you're like me, you already find code inherently fun and beautiful. you know about <a href="https://esolangs.org/">esolangs</a> and <a href="https://conlang.org/">conlangs</a>. you've read <a href="https://archive.org/details/godelescherbachaneternalgoldenbraiddouglasr.hofstadter"><em>Godel, Escher, Bach</em></a> or at least <a href="https://xkcd.com/">xkcd</a>. you're old enough to have used <a href="https://en.wikipedia.org/wiki/Internet_Relay_Chat">IRC</a> or young enough to have played <a href="https://minecraft.fandom.com/wiki/Tutorials/Setting_up_a_server">Minecraft</a>. you understand that 'the cloud' is just other peoples' computers.
 <p>
@@ -29,7 +29,7 @@ so let's get cooking.
 <h2>materials</h2>
 I'll be using a <a href="https://www.raspberrypi.com/">Raspberry Pi 4b</a> and installing <a href="https://www.armbian.com/">armbian v23.5.1</a>. if the Raspberry Pi isn't available where and when you are, a good alternative is the <a href="https://www.pine64.org/devices/single-board-computers/rock64/">ROCK64</a>. you'll also need a MicroSD card, I recommend 64GB, and a hard drive, I recommend 2TB, plus a second hard drive for backup. the pi can just about power one hard drive on its own, but if you want to plug both in at once you'll need a powered hard drive enclosure or a powered usb hub.
 <p>
-you can adapt these directions to any machine that can run <a href="https://www.debian.org/doc/">Debian</a>, like an old laptop or desktop pc. you can also rent a virtual machine running in a remote datacenter. the cheapest virtual machine on <a href="https://www.digitalocean.com/">DigitalOcean</a> is only $6/mo as of this writing, and comes with 25GB of storage. renting a machine in a datacenter means you get the perks of high-speed internet all day and night, great if you're running a game server and need a fast connection. however, you'll pay about $10/mo for every additional 100GB of storage, so it's not great if you want to host a huge media archive.
+you can adapt these directions to any machine that can run <a href="https://www.debian.org/doc/">Debian</a>, like an old laptop or desktop pc. you can also rent a virtual machine running in a remote datacenter. the cheapest virtual machine on <a href="https://www.digitalocean.com/">DigitalOcean</a> is only $6/mo (as of July 2023), and comes with 25GB of storage. renting a machine in a datacenter means you get the perks of high-speed internet all day and night, great if you're running a game server and need a fast connection. however, you'll pay about $10/mo for every additional 100GB of storage, so it's not great if you want to host a huge media archive.
 </section>
 
 <section>
@@ -38,9 +38,9 @@ first, download and install the operating system. there are lots of guides on ho
 <p>
 the installation should walk you through creating a new username and password, I recommend <a href="https://xkpasswd.net/s/">a long random phrase</a>. write it down. you can't hack a piece of paper.
 <p>
-log in as 'root', the built-in administrator account. if your install guide doesn't provide a root login, then use this command to borrow one.
+log in as 'root', the built-in administrator account. if your install guide doesn't provide a root login, then use this command. "sudo" asks for temporary admin permission, and "su" stands for "switch user".
 <pre>
-$ sudo su
+$ sudo su root
 </pre>
 throughout this guide, I'll be using <code>$</code> at the start of a command if you run it as a normal user, or <code>#</code> if you run it while logged in as root. either way, you don't actually type this symbol yourself, it should already appear on your command line.
 <p>
@@ -77,11 +77,11 @@ the Raspberry Pi and the ROCK64 both use a MicroSD card as the operating system 
 <p>
 there are different formats for a data disk. the format determines exactly where the data and metadata will appear in each 'chunk' on the disk. windows typically uses <a href="https://en.wikipedia.org/wiki/NTFS">NTFS</a>, which supports metadata for ownership and modified time, but not for fine-grained access like whether guests are allowed to open the file in read-only mode. Linux uses a format that does allow this fine-grained access, called <a href="https://en.wikipedia.org/wiki/Ext4">ext4</a>, so that's what we need to format our data disk as.
 <p>
-<strong>⚠️ warning! this will erase everything on the disk!</strong>
-<p>
 first we need to identify the disk's device file. in Linux, everything you can read or write to is treated as a file, including a usb device like an external disk. note that this device file is not the same as a filesystem mount. we'll cover mounting later.
 <p>
 unplug the disk. run the command <code>fd</code>. plug the disk back in. run <code>fd</code> again, and compare its output to before. there should be exactly one new entry, and it should look like <code>/dev/sda</code> or <code>/dev/sdb2</code>. if you're not sure which disk it is, don't risk it, phone a friend. 
+<p>
+<strong>⚠️ warning! this will erase everything on the disk!</strong>
 <p>
 format the disk:
 <pre>
@@ -146,23 +146,21 @@ explanation <a href="https://superuser.com/a/1185401">here</a>.
 
 <section>
 <h2>apps</h2>
-at this point, we'll take a detour and talk about containers. everything we've done so far has involved making changes to system files. if you need to copy your data to a new system you'll have to change all those system files again, and this gets more complicated the more things are installed. thankfully, most useful applications can now be installed as <strong>containers</strong>, which <em>contain</em> all their own data and system files. think of the host machine as a <a href="https://www.ikea.com/us/en/cat/kallax-shelving-units-58285/">shelf</a>, and each container as a cubby on that shelf. this added structure keeps apps from touching each other's files, and makes it easier to remove things later.
+at this point, we'll take a detour and talk about containers. everything we've done so far has involved making changes to system files. if you need to copy your data to a new system you'll have to change all those system files again, and this gets more complicated the more things are installed. thankfully, most useful applications can now be installed as <strong>containers</strong>.
 <p>
-we'll be using <a href="https://podman.io/">Podman</a>, a container host service that allows you to work with either individual containers, or with groups of containers called <strong>pods</strong>. in our shelf analogy, a pod is a cubby which has been sub-divided into <a href="https://www.ikea.com/us/en/cat/inserts-accessories-for-kallax-58286/">more cubbies</a>, but still takes up a single space on the original shelf.
+a <strong>container</strong> isn't quite a virtual machine, you're not running a whole computer-inside-a-computer. it's basically just a cardboard box with a fake filesystem and network. they don't take a ton of memory to create, and they don't leave junk all over the filesystem when you remove them. neat!
 <p>
-podman has a few optional packages that I recommend, we'll install them all now:
+we'll be using <a href="https://podman.io/">Podman</a>, a container host service. if you're familiar with <a href="https://www.docker.com/">Docker</a>, this is like that, but like, even <em>more</em> free.
 <pre>
 $ sudo apt install podman uidmap slirp4netns python3-pip
-$ sudo pip install podman-compose==1.0.3
+$ sudo pip install podman-compose=1.0.3
 </pre>
 <ul>
     <li>uidmap: needed to make fake users inside a container, necessary when running a container <strong>rootless</strong>, without sudo.</li>
     <li>slirp4netns: used to make private networks between containers.</li>
     <li>python3-pip: an alternative package manager specifically for <a href="https://www.python.org/">Python</a> programs, we need this to install <a href="https://github.com/containers/podman-compose#podman-compose">podman-compose</a>.</li>
-    <li>podman-compose: a very handy tool that lets you store your container instructions in a script file to use later, we'll cover this soon!</li>
+    <li>podman-compose: a very handy tool that lets you store your container instructions in a script file to use later, we'll cover this soon. I needed to specify v1.0.3 because of <a href="https://github.com/containers/podman-compose/issues/637">conflicts</a> with <a href="https://github.com/containernetworking/cni">cni</a>, the container network interface library.</li>
 </ul>
-<strong>💡 I had compatibility issues with podman-compose v1.0.6 during this writing. use v1.0.3 for now.</strong>
-<p>
 let's test it out by running <a href="https://nginx.org/">nginx</a> (pronounced 'engine-x'), a simple and fast web server. we'll use the image published by <a href="https://hub.docker.com/">Docker Hub</a>. think of an <strong>image</strong> as a photo negative or a resin mold: you can't run an image directly, but you can use it to produce a filled container.
 <pre>
 $ podman run --rm -p 9000:80 docker.io/library/nginx
