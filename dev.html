@@ -145,7 +145,7 @@ explanation <a href="https://superuser.com/a/1185401">here</a>.
 </section>
 
 <section>
-<h2>apps</h2>
+<h2>containers</h2>
 at this point, we'll take a detour and talk about containers. everything we've done so far has involved making changes to system files. if you need to copy your data to a new system you'll have to change all those system files again, and this gets more complicated the more things are installed. thankfully, most useful applications can now be installed as <strong>containers</strong>.
 <p>
 a <strong>container</strong> isn't quite a virtual machine, you're not running a whole computer-inside-a-computer. it's basically just a cardboard box with a fake filesystem and network. they don't take a ton of memory to create, and they don't leave junk all over the filesystem when you remove them. neat!
@@ -202,12 +202,51 @@ $ sudo podman-compose down
 </pre>
 </section>
 
-<!-- 
+<section>
+<h2>website</h2>
+<p>
+todo host a static website with nginx
+</section>
+
+<section>
+<h2>database</h2>
 todo
-- serve a static website with nginx
-- configure nginx to serve php content too
-- set up a database?
-- host a dockerized app with nginx proxy-pass 
-- firewall safety
-- hosting from your home router (with hairpin/reflection NAT)
--->
+<ul>
+    <li>explain why and how to host a database</li>
+    <li>install php and mariadb</li>
+    <li>configure phpmyadmin</li>
+</ul>
+</section>
+
+<section>
+<h2>networking</h2>
+todo
+<ul>
+    <li>set up a firewall using ufw</li>
+    <li>set up your router</li>
+    <li>don't forget hairpin NAT</li>
+    <li>get a domain name</li>
+    <li>set up https</li>
+    <li>gosh this could be an entire separate page huh</li>
+</ul>
+</section>
+
+<section>
+<h2>file sharing</h2>
+todo
+<ul>
+    <li>install syncthing</li>
+    <li>set up samba share</li>
+    <li>configure nfs</li>
+    <li>uhhh webdav maybe</li>
+</ul>
+</section>
+
+<section>
+<h2>apps</h2>
+todo
+<ul>
+    <li>recommend some other apps like gitea, freshrss, etc.</li>
+    <li>serve an app through nginx proxy_pass</li>
+</ul>
+</section>
