@@ -1,19 +1,22 @@
-<Directory "/data/teapot.local/web">
-        Options Indexes FollowSymLinks MultiViews
-        AllowOverride FileInfo
-        Require all granted
-</Directory>
-
 <VirtualHost *:80>
 
 ServerName teapot.local
-DocumentRoot /data/teapot.local/web
+DocumentRoot /data/teapot.local/site
 AddType text/html php
+
+<Directory />
+        Options FollowSymLinks MultiViews
+        Require all granted
+</Directory>
 
 <IfModule rewrite_module>
         RewriteEngine on
         RewriteRule (.*)\.(html|php)$ $1 [R]
         RewriteRule (.*)/index$ $1/ [R]
+</IfModule>
+
+<IfModule proxy_http_module>
+        ProxyPass /nginx http://localhost:9000
 </IfModule>
 
 </VirtualHost>
