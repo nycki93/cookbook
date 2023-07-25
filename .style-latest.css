@@ -1,17 +1,19 @@
 :root {
     /* xkcd.com/color/rgb */
+    --amber: #feb308;
     --black: #000000;
+    --steel-blue: #5a7d9a;
+    --olive-green: #677a04;
     --grey: #929591;
     --warm-grey: #978a84;
-    --olive-green: #677a04;
-    --steel-blue: #5a7d9a;
+    --light-grey: #d8dcd6;
 
     --background: var(--black);
-    --foreground: var(--warm-grey);
-    --code: var(--olive-green);
+    --foreground: var(--light-grey);
+    --code: var(--amber);
     --link: var(--steel-blue);
 
-    font-family: calibri, carlito, sans-serif;
+    font-family: tahoma, sans-serif;
     color: var(--foreground);
     background-color: var(--background);
     max-width: 100ch;
