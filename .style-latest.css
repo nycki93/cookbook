@@ -27,6 +27,8 @@ pre {
     color: var(--code);
     margin-left: 2ch;
     white-space: pre-wrap;
+    border: solid 1px;
+    padding: 0.5ch;
 }
 section {
     border-top: solid 0.5ch;
