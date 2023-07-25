@@ -26,6 +26,7 @@ code {
 pre {
     color: var(--code);
     margin-left: 2ch;
+    margin-top: 0.5ch;
     white-space: pre-wrap;
     border: solid 1px;
     padding: 0.5ch;
