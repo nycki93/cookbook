@@ -27,7 +27,7 @@ pre {
     color: var(--code);
     margin: 2ch;
     white-space: pre-wrap;
-    border: solid 0.1ch;
+    border: solid 1.5px;
     padding: 0.5ch;
 }
 section {
