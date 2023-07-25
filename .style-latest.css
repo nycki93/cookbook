@@ -2,11 +2,12 @@
     /* xkcd.com/color/rgb */
     --black: #000000;
     --grey: #929591;
+    --warm-grey: #978a84;
     --olive-green: #677a04;
     --steel-blue: #5a7d9a;
 
     --background: var(--black);
-    --foreground: var(--grey);
+    --foreground: var(--warm-grey);
     --code: var(--olive-green);
     --link: var(--steel-blue);
 
