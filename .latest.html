@@ -81,11 +81,18 @@ $ ssh pi@teapot.local
 </pre>
 </section>
 
-<!-- <section>
+<section>
 <h2>usernames and passwords</h2>
 right now your system is offline. it can connect to the internet to download packages, but this is one-way; other people on the internet can't log into your server. as soon as you go online, your system will get bombarded with spam login attempts, trying to guess your username and password. so it's worth taking a little bit of time now to pick good ones!
 <p>
-</section> -->
+for your username, you want something short and catchy. linux usernames are typically 3 to 8 characters long, the shorter the better. if you have a short name like "joe" or "pat" then that's a great name to use here. if you have a nickname online like "luna" or "azure" then that works too. if you have a middle name you can use your initials, like 'jfk'.
+<p>
+for your password, you want something long and hard to guess, but easy to remember. one reliable way to do this is to generate a bunch of random words and then stick them together. my favorite tool for this is <a href="https://theworld.com/~reinhold/diceware.html">Diceware</a>. if you roll 5 six-sided dice, it generates a random word from the diceware list, which has 7776 words in total. if you roll 25 dice, that gives you a random 5-word phrase. the number of possible phrases is equal to 6^25, which is approximately 2^64, meaning that rolling 25 dice has the same amount of information, or <strong>entropy</strong>, as flipping 64 coins. if it's possible for an attacker to try guessing your password, you should have at least 60 bits of entropy. they will probably give up and find someone easier to hack.
+<p>
+if you have a password manager, save your new password there. if not, write it down somewhere safe. you can't hack a piece of paper, so this is enough to deter most online attacks.
+<p>
+todo: create a new user and remove the old default user.
+</section>
 
 <section>
 <h2>format storage</h2>
