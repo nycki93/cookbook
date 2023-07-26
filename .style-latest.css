@@ -13,7 +13,7 @@
     --code: var(--amber);
     --link: var(--steel-blue);
 
-    font-family: tahoma, sans-serif;
+    font-family: sans-serif;
     color: var(--foreground);
     background-color: var(--background);
     max-width: 100ch;
