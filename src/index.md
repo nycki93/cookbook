@@ -2,7 +2,7 @@
 pagetitle: Klay's Simple Cookbook for Linux
 ...
 
-# klay's simple cookbook for Linux, [v0.8.0](https://github.com/klaymu/self-host)
+# klay's simple cookbook for Linux, [v0.8.0a](https://github.com/klaymu/self-host)
 
 ## audience
 
