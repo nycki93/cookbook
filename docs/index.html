@@ -19,21 +19,51 @@
 </header>
 <nav id="TOC">
 <ul>
-<li><a href="#audience">audience</a></li>
+<li><a href="#introduction">introduction</a><ul>
+<li><a href="#why-a-cookbook">why a cookbook?</a></li>
+<li><a href="#why-all-the-lowercase">why all the lowercase?</a></li>
+<li><a href="#who-is-your-audience">who is your audience?</a></li>
+</ul></li>
 <li><a href="#materials">materials</a></li>
+<li><a href="#operating-system">operating system</a></li>
 </ul>
 </nav>
-<section id="audience" class="level2">
-<h2>audience</h2>
-<p>who is this guide for? me, mostly. but more broadly lorem ipsum dolor sit amet</p>
-<p>this is the second paragraph of the first section</p>
+<section id="introduction" class="level2">
+<h2>introduction</h2>
+<section id="why-a-cookbook" class="level3">
+<h3>why a cookbook?</h3>
+<p>there’s an old <a href="https://reddit.com/r/geek/comments/4zl3e1/happy_birthday_linux_heres_your_cake">joke</a> that using Linux is like ordering a cake and receiving a bunch of flour, sugar, butter, and eggs. many self-hosting tutorials read like the back of a box of cake mix, which is great if you want a cake fast, but unsatisfying if you want to learn about cake making. my goal is for this guide to teach you enough to improvise, to make substitutions.</p>
+</section>
+<section id="why-all-the-lowercase" class="level3">
+<h3>why all the lowercase?</h3>
+<p>a few people have asked me this. honestly I have some <a href="https://seximal.net">influences</a> but the main reason is that it reminds me of writing code. in code, uppercase letters are almost always reserved for names. I did my best to capitalize all names in this document the way their owners capitalize them, so the web protocol is HTTP, but the comic strip is xkcd.</p>
+</section>
+<section id="who-is-your-audience" class="level3">
+<h3>who is your audience?</h3>
+<p>this guide is for you if:</p>
+<ul>
+<li>you’re me, and you forgot how you did this last time.</li>
+<li>you want to share pictures and videos and don’t want to use a commercial file host.</li>
+<li>you want to run a communal server, like <a href="https://tilde.club">tilde.club</a>.</li>
+<li>you’re just curious about Linux and servers!</li>
+</ul>
+<p>sound good? then let’s get cooking.</p>
+</section>
 </section>
 <section id="materials" class="level2">
 <h2>materials</h2>
-<p>this is the first paragraph of the second section. it has <code>inline code</code> and also</p>
-<pre class="js"><code>some = formatted(javascript);</code></pre>
-<p>and also</p>
-<pre><code>$ some unformatted shell script</code></pre>
+<p>I’ll be using a <a href="https://www.raspberrypi.com">Raspberry Pi 4b</a> and installing [Raspberry Pi OS]. it’s also known as Raspbian, since it’s based on <a href="https://www.debian.org/doc">Debian</a> Linux. any Debian-like OS will work for this tutorial. if the Raspberry Pi isn’t available where and when you are, some good alternatives are the <a href="https://libre.computer/products/roc-rk3328-cc">Renegade</a> or the <a href="https://www.pine64.org/devices/single-board-computers/rock64">ROCK64</a>, running <a href="https://www.armbian.com">armbian</a> Linux.</p>
+<p>you’ll also need a MicroSD card, a hard drive, and a second hard drive for backup. I recommend a 64GB MicroSD card and two 2TB hard drives. the Pi can power one hard drive via USB, but if you want to plug both in at once you’ll need a powered hard drive enclosure or a powered USB hub.</p>
+<p>you can also adapt these directions to existing hardware you may already own, like an old laptop or desktop pc. you can also rent a virtual machine from a remote datacenter! the cheapest virtual machine on <a href="https://www.digitalocean.com">DigitalOcean</a> right now (as of 2023 July) costs 6 USD per month, and comes with 25GB of storage. renting a machine in a datacenter means you gget the perks of high-speed internet all day and night, which is great if you are running a game server and need a fast connection. however, you’ll pay 10 USD per month for each 100GB of additional storage, so it’s not great if you want to host a huge media archive.</p>
+<!-- todo: what about S3-compatible storage? -->
+</section>
+<section id="operating-system" class="level2">
+<h2>operating system</h2>
+<p>first, download and install your operating system. there are lots of guides on how to install Linux already, <a href="https://www.raspberrypi.com/tutorials/how-to-set-up-raspberry-pi">here’s</a> one for Raspbian. you may need to plug in an external keyboard and monitor while getting set up. later we can unplug those again, giving us a CLI or ‘headless’ server.</p>
+<!-- it's important to name drop CLI and 'headless' here so a newbie knows which version of Raspbian to download -->
+<p>if you’re using Raspbian, you’ll be given a default user named ‘pi’ with the password ‘raspberry’. if you’re using another Linux distribution, you’ll likely be prompted to make up your own. we’ll cover how to change this later.</p>
+<p>some commands are forbidden to normal users, but your default user should have the ‘sudo’ permission. sudo stands for ‘super user do’, and it means ‘do the next thing as an administrator’. you can use <code>sudo &lt;whatever&gt;</code> for a single command, or enter interactive mode with <code>sudo -i</code>. in interactive mode, <em>all</em> your commands will be admin commands, until you say <code>exit</code>.</p>
+<p><span class="emoji" data-emoji="warning">⚠️</span> <strong>there is no undo button! if you say something with sudo, make sure you mean it!</strong></p>
 </section>
 </body>
 </html>

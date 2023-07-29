@@ -14,6 +14,7 @@ docs/index.html: src/index.md docs/style.css
 		--resource-path docs \
 		--css style.css \
 		--no-highlight \
+		--from markdown+emoji \
 		src/index.md
 
 docs/style.css: src/style.css
