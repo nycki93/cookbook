@@ -1,8 +1,6 @@
 ---
-pagetitle: Klay's Simple Cookbook for Linux
+title: klay's simple cookbook for Linux, [v0.8.0a](https://github.com/klaymu/self-host)
 ...
-
-# klay's simple cookbook for Linux, [v0.8.0a](https://github.com/klaymu/self-host)
 
 ## audience
 
@@ -20,6 +18,6 @@ some = formatted(javascript);
 
 and also
 
-```bash
+```
 $ some unformatted shell script
 ```
