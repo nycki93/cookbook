@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en">
 <meta charset="utf-8">
-<link rel="stylesheet" href=".style-latest.css">
+<link rel="stylesheet" href="style-v0.6.0.css">
 <title>
 klay's simple cookbook for Linux
 </title>
@@ -11,12 +11,9 @@ klay's simple cookbook for Linux
 | <a href=".">latest</a>
 | <a href="v0.5.2">v0.5.2</a>
 | <a href="v0.6.0">v0.6.0</a>
-| <a href="v0.7.0">v0.7.0</a>
-| <a href="v0.7.1">v0.7.1</a>
-| <a href="v0.7.2">v0.7.2</a>
 </nav>
 
-<h1>klay's simple cookbook for Linux, v0.7.3</h1>
+<h1>klay's simple cookbook for Linux, v0.7.0</h1>
 
 <section>
 <h2>audience</h2>
@@ -29,32 +26,24 @@ let's get cooking.
 
 <section>
 <h2>materials</h2>
-I'll be using a <a href="https://www.raspberrypi.com/">Raspberry Pi 4b</a> and installing <a href="https://www.raspberrypi.com/software/">Raspberry PI "Raspbian" Linux</a>, but you can also use <a href="https://www.armbian.com/">armbian Linux</a>. if the Raspberry Pi isn't available where and when you are, check out the <a href="https://libre.computer/products/roc-rk3328-cc/">Renegade</a> or the <a href="https://www.pine64.org/devices/single-board-computers/rock64/">ROCK64</a>. you'll also need a MicroSD card, a hard drive, and a second hard drive for backup. I recommend a 64GB MicroSD card and two 2TB hard drives. the Pi can just about power one hard drive on its own, but if you want to plug both in at once you'll need a powered hard drive enclosure or a powered usb hub.
+I'll be using a <a href="https://www.raspberrypi.com/">Raspberry Pi 4b</a> and installing <a href="https://www.armbian.com/">armbian v23.5.1</a>. if the Raspberry Pi isn't available where and when you are, check out the <a href="https://libre.computer/products/roc-rk3328-cc/">Renegade</a> or the <a href="https://www.pine64.org/devices/single-board-computers/rock64/">ROCK64</a>. you'll also need a MicroSD card, I recommend 64GB, and a hard drive, I recommend 2TB, plus a second hard drive for backup. the Pi can just about power one hard drive on its own, but if you want to plug both in at once you'll need a powered hard drive enclosure or a powered usb hub.
 <p>
 you can adapt these directions to any machine that can run <a href="https://www.debian.org/doc/">Debian</a>, like an old laptop or desktop pc. you can also rent a virtual machine running in a remote datacenter. the cheapest virtual machine on <a href="https://www.digitalocean.com/">DigitalOcean</a> is only $6/mo (as of July 2023), and comes with 25GB of storage. renting a machine in a datacenter means you get the perks of high-speed internet all day and night, great if you're running a game server and need a fast connection. however, you'll pay about $10/mo for every additional 100GB of storage, so it's not great if you want to host a huge media archive.
 </section>
 
 <section>
 <h2>operating system</h2>
-first, download and install the operating system. there are lots of guides on how to install Linux already, <a href="https://www.raspberrypi.com/tutorials/how-to-set-up-raspberry-pi/">here's</a> one for Raspbian. you may need to plug in an external keyboard and monitor for this step. we can unplug those later, giving us a CLI or "headless" server. 
+first, download and install the operating system. there are lots of guides on how to install Linux already, <a href="https://docs.armbian.com/User-Guide_Getting-Started/">here's</a> one for armbian. you may need to plug in an external keyboard and monitor for this step. we can unplug those later, giving us a CLI or "headless" server. 
 <p>
-if you're using Raspbian, you'll be given a default user named "pi" with the password "raspberry". if you're using another Linux distribution, you might be prompted to make up your own username and password. we'll go over how to change this later.
+the installation should walk you through creating a new username and password, I recommend <a href="https://xkpasswd.net/s/">a long random phrase</a>. write it down. you can't hack a piece of paper.
 <p>
-we're going to do our first admin commands, so it's a good time to learn about <strong>sudo</strong>. this command stands for "super user do", and means "do the next thing as an administrator". you can also use <code>sudo -i</code> to sudo interactively, meaning you will stay in administrator mode until you <code>exit</code> back to normal user mode.
-<p>
-<strong>⚠️ warning! there is no undo button in Linux!</strong>
-<p>
-you can do some really nasty stuff to your system with sudo. probably the most notorious is <code>sudo rm -rf /</code>, which tells the system "delete everything, and yes I mean everything." in fact, if this is your first time using a linux machine, I recommend issuing this command now, to get it over with. <strong>make sure your external disks are unplugged</strong>, then at the prompt, type <code>sudo rm -rf /</code>, press enter, and see what happens. when the system is completely unusable, you can always reinstall the operating system on the MicroSD card and start over. so go ahead! embrace chaos! the system might even try to stop you, but push onwards. this is <em>your</em> computer, and it <em>will</em> obey your orders, sensible or otherwise!
-<p>
-when you've finished going mad with power, reinstall the os, and let's continue. 
-<p>
-we'll enter sudo interactively. this will change the <code>$</code> shell prompt to a <code>#</code> admin shell prompt.
+log in as 'root', the built-in administrator account. if your install guide doesn't provide a root login, then use this command. "sudo" asks for temporary admin permission, and "su" stands for "switch user".
 <pre>
-$ sudo -i
+$ sudo su root
 </pre>
 throughout this guide, I'll be using <code>$</code> at the start of a command if you run it as a normal user, or <code>#</code> if you run it while logged in as root. either way, you don't actually type this symbol yourself, it should already appear on your command line.
 <p>
-first we'll do some system updates. 'apt' is the package manager built into Debian, it holds all your system software and lots of fun optional stuff too. 'update' looks for packages that have changed on the remote package server, and 'upgrade' installs upgraded versions of the packages you already have.
+once you're logged in as root, do some system updates. 'apt' is the package manager built into Debian, it holds all your system software and lots of fun optional stuff too.
 <pre>
 # apt update
 # apt upgrade
@@ -63,7 +52,7 @@ next, set your hostname. this is how you will appear to other computers on the n
 <pre>
 # hostnamectl set-hostname teapot
 </pre>
-I'd like to be able to connect to this machine using its hostname. if you're using Raspbian this is set up automatically, if not, there's a tool for this called 'avahi-daemon'.
+I'd like to be able to connect to this machine using its hostname. there's a tool for this called 'avahi-daemon'.
 <pre>
 # apt install avahi-daemon
 </pre>
@@ -73,44 +62,11 @@ this is a good time to reboot, to make sure the updated hostname is in use:
 </pre>
 you should now be able to log into the server from another machine, with
 <pre>
-$ ssh pi@teapot
+$ ssh yourname@teapot
 </pre>
 or
 <pre>
-$ ssh pi@teapot.local
-</pre>
-</section>
-
-<section>
-<h2>usernames and passwords</h2>
-right now your system is offline. it can connect to the internet to download packages, but this is one-way; other people on the internet can't log into your server. as soon as you go online, your system will get bombarded with spam login attempts, trying to guess your username and password. so it's worth taking a little bit of time now to pick good ones!
-<p>
-for your username, you want something short and catchy. linux usernames are typically 3 to 8 characters long, the shorter the better. if you have a short name like "alice" or "bob" then that's a great name to use here. if you have a nickname online like "luna" or "azure" then that works too. if you have a middle name you can use your initials, like 'jfk'.
-<p>
-for your password, you want something long and hard to guess, but easy to remember. one reliable way to do this is to generate a bunch of random words and then stick them together. my favorite tool for this is <a href="https://theworld.com/~reinhold/diceware.html">Diceware</a>. if you roll 5 six-sided dice, it generates a random word from the diceware list, which has 7776 words in total. if you roll 25 dice, that gives you a random 5-word phrase. the number of possible phrases is equal to 6^25, which is approximately 2^64, meaning that rolling 25 dice has the same amount of information, or <strong>entropy</strong>, as flipping 64 coins, or "bits". if your server is online, you should have at least 60 bits of entropy. an attacker will probably give up and find someone easier to hack.
-<p>
-if you have a password manager, save your new password there. if not, write it down somewhere safe. you can't hack a piece of paper, so this is enough to deter most online attacks.
-<p>
-to add a new user named alice:
-<pre>
-$ sudo adduser alice
-</pre>
-to give them access to the sudo command:
-<pre>
-$ sudo usermod -a -G sudo
-</pre>
-you won't be able to remove user 'pi' while you're still logged in as it. log out, then log back in as alice. test that you can use sudo:
-<pre>
-$ sudo -i
-# exit
-</pre>
-if you're using Raspbian, check to make sure that your new user is the system default, or you may be unable to reboot.
-<pre>
-$ sudo raspi-config
-</pre>
-select System -> Boot / Auto login -> Console, and reboot. finally, remove user 'pi':
-<pre>
-$ sudo deluser -remove-home pi
+$ ssh yourname@teapot.local
 </pre>
 </section>
 
@@ -274,13 +230,13 @@ a <strong>container</strong> isn't quite a virtual machine, you're not running a
 we'll be using <a href="https://podman.io/">Podman</a>, a container host service. if you're familiar with <a href="https://www.docker.com/">Docker</a>, this is like that, but like, even <em>more</em> free.
 <pre>
 $ sudo apt install podman uidmap slirp4netns python3-pip
-$ sudo pip install "podman-compose&lt;1.0"
+$ sudo pip install podman-compose=1.0.3
 </pre>
 <ul>
     <li>uidmap: needed to make fake users inside a container, necessary when running a container <strong>rootless</strong>, without sudo.</li>
     <li>slirp4netns: used to make private networks between containers.</li>
     <li>python3-pip: an alternative package manager specifically for <a href="https://www.python.org/">Python</a> programs, we need this to install <a href="https://github.com/containers/podman-compose#podman-compose">podman-compose</a>.</li>
-    <li>podman-compose: a very handy tool that lets you store your container instructions in a script file to use later, we'll cover this soon. I needed to specify an old version because of <a href="https://github.com/containers/podman-compose/issues/637">conflicts</a> with <a href="https://github.com/containernetworking/cni">cni</a>, the container network interface library.</li>
+    <li>podman-compose: a very handy tool that lets you store your container instructions in a script file to use later, we'll cover this soon. I needed to specify v1.0.3 because of <a href="https://github.com/containers/podman-compose/issues/637">conflicts</a> with <a href="https://github.com/containernetworking/cni">cni</a>, the container network interface library.</li>
 </ul>
 let's test it out by running <a href="https://nginx.org/">nginx</a> (pronounced 'engine-x'), a simple and fast web server. we'll use the image published by <a href="https://hub.docker.com/">Docker Hub</a>. think of an <strong>image</strong> as a photo negative or a resin mold: you can't run an image directly, but you can use it to produce a filled container.
 <pre>
@@ -339,8 +295,8 @@ todo
 <ul>
     <li>install syncthing</li>
     <li>set up samba share</li>
-    <li>configure nfs?</li>
-    <li><a href="https://github.com/filebrowser/filebrowser">FileBrowser</a></li>
+    <li>configure nfs</li>
+    <li>uhhh webdav maybe</li>
 </ul>
 </section>
 
@@ -349,12 +305,6 @@ todo
 todo
 <ul>
     <li>recommend some other apps like gitea, freshrss, etc.</li>
-    <li>serve apps through apache ProxyPass</li>
-    <li>see also <a href="https://github.com/awesome-selfhosted/awesome-selfhosted">awesome self-hosted</a> and <a href="https://github.com/awesome-foss/awesome-sysadmin">awesome sysadmin</a> software.
+    <li>serve an app through nginx proxy_pass</li>
 </ul>
-</section>
-
-<section>
-<h2>auth</h2>
-todo: set up <a href="https://www.keycloak.org/">Keycloak</a> so you can login through the reverse proxy.
 </section>

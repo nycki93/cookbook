@@ -1,19 +1,16 @@
 :root {
     /* xkcd.com/color/rgb */
-    --amber: #feb308;
     --black: #000000;
-    --steel-blue: #5a7d9a;
-    --olive-green: #677a04;
     --grey: #929591;
-    --warm-grey: #978a84;
-    --light-grey: #d8dcd6;
+    --olive-green: #677a04;
+    --steel-blue: #5a7d9a;
 
     --background: var(--black);
-    --foreground: var(--light-grey);
-    --code: var(--amber);
+    --foreground: var(--grey);
+    --code: var(--olive-green);
     --link: var(--steel-blue);
 
-    font-family: sans-serif;
+    font-family: calibri, carlito, sans-serif;
     color: var(--foreground);
     background-color: var(--background);
     max-width: 100ch;
@@ -26,13 +23,13 @@ a {
 code {
     color: var(--code);
 }
-pre, pre.sourceCode {
+pre {
     color: var(--code);
     margin: 2ch;
     white-space: pre-wrap;
     border: solid 1.5px;
-    padding: 2ch;
+    padding: 0.5ch;
 }
-section.level2 {
+section {
     border-top: solid 0.5ch;
 }

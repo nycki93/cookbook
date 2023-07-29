@@ -1,17 +1,8 @@
 ---
 pagetitle: Klay's Simple Cookbook for Linux
-css: .style-latest.css
-no-highlight: true
 ...
-<nav>
-[home](/)
-[latest](./index.html)
-[v0.5.2](./v0.5.2.html)
-[v0.6.0](./v0.6.0.html)
-[v0.7.0](./v0.7.0.html)
-</nav>
 
-# klay's simple cookbook for Linux, v0.7.4
+# klay's simple cookbook for Linux, [v0.8.0](https://github.com/klaymu/self-host)
 
 ## audience
 

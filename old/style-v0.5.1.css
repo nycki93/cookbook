@@ -1,0 +1,26 @@
+:root {
+    font-family: Calibri, sans-serif;
+    color: lightgray;
+    background-color: black;
+    max-width: 100ch;
+    margin: auto;
+}
+a {
+    color: deepskyblue;
+}
+a:visited {
+    color: deeppink;
+}
+code {
+    color: lightgreen;
+    font-size: 1rem;
+}
+pre {
+    color: lightgreen;
+    font-size: 1rem;
+    margin-left: 2ch;
+    white-space: pre-wrap;
+}
+section {
+    border-top: lightgray solid 0.5ch;
+}
