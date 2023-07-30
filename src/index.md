@@ -51,3 +51,35 @@ if you're using Raspbian, you'll be given a default user named 'pi' with the pas
 some commands are forbidden to normal users, but your default user should have the 'sudo' permission. sudo stands for 'super user do', and it means 'do the next thing as an administrator'. you can use `sudo <whatever>` for a single command, or enter interactive mode with `sudo -i`. in interactive mode, *all* your commands will be admin commands, until you say `exit`.
 
 :warning: **there is no undo button! if you say something with sudo, make sure you mean it!**
+
+throughout this guide, I'll be using `$` at the start of a command if you run it as a normal user, or `#` if you run it as admin. either way, you don't actually type this symbol yourself, it should already appear on your command line.
+
+the first thing we'll do is install system updates. 'apt' is the package manager built into Debian, it holds all your system software and lots of fun optional stuff too. 'update' looks for packages that have changed on the remote package server, and 'upgrade' installs upgraded versions of the packages you already have.
+```
+# apt update
+# apt upgrade
+```
+next, we'll set your hostname. this is how you will appear to other computers on the network. for this example I'll use 'teapot'.
+```
+# hostnamectl set-hostname teapot
+```
+Raspbian comes with avahi-daemon preconfigured, which broadcasts your hostname to the network. if you are on another distribution, you can install this program with
+```
+# apt install avahi-daemon
+```
+this is a good time to reboot, to make sure the updated hostname is in use.
+```
+# reboot
+```
+after a minute, you should now be able to log in remotely from another computer, using
+```
+$ ssh pi@teapot
+```
+or
+```
+$ ssh pi@teapot.local
+```
+
+## usernames and passwords
+
+right now your system is offline. it can connect to the internet to download packages, but this is one-way. other people can't connect to your machine. if you go online later, your system will get spammed with login attempts, trying to guess your username and password. there are some ways to mitigate this, but you should still pick a good password.

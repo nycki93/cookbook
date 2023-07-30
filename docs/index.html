@@ -5,11 +5,13 @@
   <meta name="generator" content="pandoc" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
   <title>klay’s simple cookbook for Linux, v0.8.0a</title>
-  <style type="text/css">
-      code{white-space: pre-wrap;}
-      span.smallcaps{font-variant: small-caps;}
-      span.underline{text-decoration: underline;}
-      div.column{display: inline-block; vertical-align: top; width: 50%;}
+  <style>
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    span.underline{text-decoration: underline;}
+    div.column{display: inline-block; vertical-align: top; width: 50%;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
   </style>
   <link rel="stylesheet" href="style.css" />
 </head>
@@ -17,15 +19,17 @@
 <header id="title-block-header">
 <h1 class="title">klay’s simple cookbook for Linux, <a href="https://github.com/klaymu/self-host">v0.8.0a</a></h1>
 </header>
-<nav id="TOC">
+<nav id="TOC" role="doc-toc">
 <ul>
-<li><a href="#introduction">introduction</a><ul>
+<li><a href="#introduction">introduction</a>
+<ul>
 <li><a href="#why-a-cookbook">why a cookbook?</a></li>
 <li><a href="#why-all-the-lowercase">why all the lowercase?</a></li>
 <li><a href="#who-is-your-audience">who is your audience?</a></li>
 </ul></li>
 <li><a href="#materials">materials</a></li>
 <li><a href="#operating-system">operating system</a></li>
+<li><a href="#usernames-and-passwords">usernames and passwords</a></li>
 </ul>
 </nav>
 <section id="introduction" class="level2">
@@ -64,6 +68,24 @@
 <p>if you’re using Raspbian, you’ll be given a default user named ‘pi’ with the password ‘raspberry’. if you’re using another Linux distribution, you’ll likely be prompted to make up your own. we’ll cover how to change this later.</p>
 <p>some commands are forbidden to normal users, but your default user should have the ‘sudo’ permission. sudo stands for ‘super user do’, and it means ‘do the next thing as an administrator’. you can use <code>sudo &lt;whatever&gt;</code> for a single command, or enter interactive mode with <code>sudo -i</code>. in interactive mode, <em>all</em> your commands will be admin commands, until you say <code>exit</code>.</p>
 <p><span class="emoji" data-emoji="warning">⚠️</span> <strong>there is no undo button! if you say something with sudo, make sure you mean it!</strong></p>
+<p>throughout this guide, I’ll be using <code>$</code> at the start of a command if you run it as a normal user, or <code>#</code> if you run it as admin. either way, you don’t actually type this symbol yourself, it should already appear on your command line.</p>
+<p>the first thing we’ll do is install system updates. ‘apt’ is the package manager built into Debian, it holds all your system software and lots of fun optional stuff too. ‘update’ looks for packages that have changed on the remote package server, and ‘upgrade’ installs upgraded versions of the packages you already have.</p>
+<pre><code># apt update
+# apt upgrade</code></pre>
+<p>next, we’ll set your hostname. this is how you will appear to other computers on the network. for this example I’ll use ‘teapot’.</p>
+<pre><code># hostnamectl set-hostname teapot</code></pre>
+<p>Raspbian comes with avahi-daemon preconfigured, which broadcasts your hostname to the network. if you are on another distribution, you can install this program with</p>
+<pre><code># apt install avahi-daemon</code></pre>
+<p>this is a good time to reboot, to make sure the updated hostname is in use.</p>
+<pre><code># reboot</code></pre>
+<p>after a minute, you should now be able to log in remotely from another computer, using</p>
+<pre><code>$ ssh pi@teapot</code></pre>
+<p>or</p>
+<pre><code>$ ssh pi@teapot.local</code></pre>
+</section>
+<section id="usernames-and-passwords" class="level2">
+<h2>usernames and passwords</h2>
+<p>right now your system is offline. it can connect to the internet to download packages, but this is one-way. other people can’t connect to your machine. if you go online later, your system will get spammed with login attempts, trying to guess your username and password. there are some ways to mitigate this, but you should still pick a good password.</p>
 </section>
 </body>
 </html>
