@@ -5,13 +5,11 @@
   <meta name="generator" content="pandoc" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
   <title>klay’s simple cookbook for Linux, v0.8.0a</title>
-  <style>
-    code{white-space: pre-wrap;}
-    span.smallcaps{font-variant: small-caps;}
-    span.underline{text-decoration: underline;}
-    div.column{display: inline-block; vertical-align: top; width: 50%;}
-    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
-    ul.task-list{list-style: none;}
+  <style type="text/css">
+      code{white-space: pre-wrap;}
+      span.smallcaps{font-variant: small-caps;}
+      span.underline{text-decoration: underline;}
+      div.column{display: inline-block; vertical-align: top; width: 50%;}
   </style>
   <link rel="stylesheet" href="style.css" />
 </head>
@@ -19,10 +17,9 @@
 <header id="title-block-header">
 <h1 class="title">klay’s simple cookbook for Linux, <a href="https://github.com/klaymu/self-host">v0.8.0a</a></h1>
 </header>
-<nav id="TOC" role="doc-toc">
+<nav id="TOC">
 <ul>
-<li><a href="#introduction">introduction</a>
-<ul>
+<li><a href="#introduction">introduction</a><ul>
 <li><a href="#why-a-cookbook">why a cookbook?</a></li>
 <li><a href="#why-all-the-lowercase">why all the lowercase?</a></li>
 <li><a href="#who-is-your-audience">who is your audience?</a></li>
@@ -85,7 +82,19 @@
 </section>
 <section id="usernames-and-passwords" class="level2">
 <h2>usernames and passwords</h2>
-<p>right now your system is offline. it can connect to the internet to download packages, but this is one-way. other people can’t connect to your machine. if you go online later, your system will get spammed with login attempts, trying to guess your username and password. there are some ways to mitigate this, but you should still pick a good password.</p>
+<p>at this point you should be able to log into your system from your home network, but not from the public internet. it’s important that before you allow connections from strangers, you set up a good username and password. there are bots out there that do nothing but guess random usernames and passwords all day, and they <em>will</em> find you, so you need to be prepared.</p>
+<p>for your username, pick something short and catchy. in my experience, a typical linux username is from 3 to 8 characters long. if you have a short name like ‘alice’ or ‘bob’ you can use that. if you have a nickname online like ‘azure’ or ‘luna’ then that works too. if you have a middle name, you can use your initials, like ‘jfk’. your username should be all lowercase.</p>
+<p>for your password, the most important factor is length. I know you’ve been told that you need to add weird symbols and stuff in it, but that rule is for older more limited systems. it’s the 64-bit era, baby! the only thing that matters is how much entropy your password has. <strong>entropy</strong> is basically a measure of how unlikely something is to happen twice. like if I flip ten coins and you flip ten coins and we get the same sequence, the odds of that happening are 1 in 2^10, so we say that that particular sequence of flips has 10 “bits” of entropy. it’s recommended that your password have about 60 to 80 bits of entropy. yikes, that’s a lot of coin flips to memorize!</p>
+<p>luckily there’s a better way. using a tool like <a href="https://xkpasswd.net/s/">xkpasswd</a> or <a href="https://theworld.com/~reinhold/diceware.html">diceware</a>, you can convert randomness into words. using the diceware list, you can roll 25 six-sided dice to get a random 25-digit sequence, and then convert each 5 digits into a word, to get a 5-word phrase. the odds of two people getting the same 5-word phrase are 1 in 6^25, which is approximately equal to 2^64, so this password has 64 bits of entropy. that’s enough to make most hackers give up and move onto an easier target. go generate a password now, and save it somewhere safe, like a password manager program, or a piece of paper tucked inside a book. don’t be afraid to write things down; you can’t hack a piece of paper.</p>
+<p>once you have a username and passphrase picked out, create a new user for yourself:</p>
+<pre><code># adduser alice</code></pre>
+<p>and give them access to the sudo command:</p>
+<pre><code># usermod -aG sudo</code></pre>
+<p>you can’t remove the ‘pi’ user while you’re still logged in as it. log out, then log back in as alice. make sure you can use sudo:</p>
+<pre><code>$ sudo -i
+# exit</code></pre>
+<p>you can now remove the pi user.</p>
+<p><em>todo: test this to make sure removing the pi user doesn’t break anything</em></p>
 </section>
 </body>
 </html>

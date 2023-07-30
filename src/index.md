@@ -82,4 +82,27 @@ $ ssh pi@teapot.local
 
 ## usernames and passwords
 
-right now your system is offline. it can connect to the internet to download packages, but this is one-way. other people can't connect to your machine. if you go online later, your system will get spammed with login attempts, trying to guess your username and password. there are some ways to mitigate this, but you should still pick a good password.
+at this point you should be able to log into your system from your home network, but not from the public internet. it's important that before you allow connections from strangers, you set up a good username and password. there are bots out there that do nothing but guess random usernames and passwords all day, and they *will* find you, so you need to be prepared.
+
+for your username, pick something short and catchy. in my experience, a typical linux username is from 3 to 8 characters long. if you have a short name like 'alice' or 'bob' you can use that. if you have a nickname online like 'azure' or 'luna' then that works too. if you have a middle name, you can use your initials, like 'jfk'. your username should be all lowercase.
+
+for your password, the most important factor is length. I know you've been told that you need to add weird symbols and stuff in it, but that rule is for older more limited systems. it's the 64-bit era, baby! the only thing that matters is how much entropy your password has. **entropy** is basically a measure of how unlikely something is to happen twice. like if I flip ten coins and you flip ten coins and we get the same sequence, the odds of that happening are 1 in 2^10, so we say that that particular sequence of flips has 10 "bits" of entropy. it's recommended that your password have about 60 to 80 bits of entropy. yikes, that's a lot of coin flips to memorize!
+
+luckily there's a better way. using a tool like [xkpasswd](https://xkpasswd.net/s/) or [diceware](https://theworld.com/~reinhold/diceware.html), you can convert randomness into words. using the diceware list, you can roll 25 six-sided dice to get a random 25-digit sequence, and then convert each 5 digits into a word, to get a 5-word phrase. the odds of two people getting the same 5-word phrase are 1 in 6^25, which is approximately equal to 2^64, so this password has 64 bits of entropy. that's enough to make most hackers give up and move onto an easier target. go generate a password now, and save it somewhere safe, like a password manager program, or a piece of paper tucked inside a book. don't be afraid to write things down; you can't hack a piece of paper.
+
+once you have a username and passphrase picked out, create a new user for yourself:
+```
+# adduser alice
+```
+and give them access to the sudo command:
+```
+# usermod -aG sudo
+```
+you can't remove the 'pi' user while you're still logged in as it. log out, then log back in as alice. make sure you can use sudo:
+```
+$ sudo -i
+# exit
+```
+you can now remove the pi user.
+
+*todo: test this to make sure removing the pi user doesn't break anything*
