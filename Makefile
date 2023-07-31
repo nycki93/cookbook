@@ -10,7 +10,7 @@ docs/index.html: src/index.md src/nav.html
 		-o docs/index.html \
 		--standalone \
 		--table-of-contents \
-		--toc-depth=2 \
+		--toc-depth=3 \
 		--section-divs \
 		--css style.css \
 		--no-highlight \

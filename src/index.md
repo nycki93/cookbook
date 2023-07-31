@@ -1,5 +1,5 @@
 ---
-title: klay's simple cookbook for Linux, [v0.8.0](https://github.com/klaymu/self-host)
+title: klay's simple cookbook for Linux, [v0.9.0](https://github.com/klaymu/self-host)
 ...
 
 ## introduction
@@ -299,15 +299,159 @@ now go back to <http://teapot.local> and hit refresh, and you should see your ne
 
 ## networking
 
-your website won't work outside your local network until you do this, but I haven't written a guide yet, sorry. here's the gist of it.
+at this point, your server is available only on your **LAN**, your local area network. this network is managed by your **router**, which is a small computer plugged into your home's internet cable. this cable goes to an internet service provider, or **ISP**, and they take the traffic from your network and connect it to other networks around the world. by default, your router will protect your computers from unwanted traffic. people from around the world can't log into your server, and they also can't see your website. if you want to change that, you'll need to change settings on the router.
 
-- set up a firewall using ufw
-- set up port forwarding on your router
-- don't forget hairpin NAT
-- get a domain name
-- set up https
+:warning: **don't modify a home network without consent!** 
 
-todo: write this section, maybe even make this an entirely separate guide honestly
+if you do this wrong it puts *everyone* on the network at risk, so make sure everyone in your house knows what you're doing. if *anyone* isn't comfortable, then do not open up your home network! you have lots of other options:
+
+- host your website with a free host like [Neocities](https://neocities.org/) or [GitHub Pages](https://pages.github.com/).
+- have a friend host instead and share the server with them.
+- rent a virtual server from a service like [DigitalOcean](https://www.digitalocean.com/) or [Amazon Web Services (AWS)](https://aws.amazon.com/).
+
+if you're sure you want to open up your home network, read on...
+
+### firewall
+
+if you do everything right, the only server that will be available to the outside world is our little teapot, and only people with an account will be able to get in.
+
+:warning: **you _did_ pick a long, random passphrase, right? if not, go back and do that _now_.**
+
+however, for a little extra safety, we'll use `ufw` and `fail2ban` to limit what kind of messages teapot will answer. `ufw` allows us to ignore bad requests, and `fail2ban` allows us to block people or bots who make too many wrong guesses. 
+
+:bulb: I got this information almost verbatim from the [Raspberry Pi Foundation](https://www.raspberrypi.com/documentation/computers/configuration.html), seriously they're awesome people.
+
+install `ufw` and `fail2ban`. unlike other system services, these don't start automatically, since you can lock yourself out with them. that's why it's important we configure these *before* changing settings on the router.
+
+```
+# apt install ufw fail2ban
+```
+
+we'll also need to know the router's local address. we can find this with the `ip` function.
+
+```
+$ ip route
+```
+
+the first line of the output should look like this:
+
+```
+default via 192.168.20.1 dev eth0
+```
+
+if you're using a wireless connection, you'll see wlan0 instead of eth0. underneath the first line, you should see a similar number, but with /24 at the end, like
+
+```
+192.168.20.0/24 dev eth0
+```
+
+this defines the local **subnet**, the list of IPs that count as part of your local area network. the /24 means that the first 24 bits are fixed. there are 8 bits in a byte, so 24 bits is 3 bytes, meaning that this subnet includes all addresses of the form 192.168.20.x.
+
+to avoid locking ourself out, we'll allow anything from the local area network to connect:
+
+```
+# ufw allow from 192.168.20.0/24
+```
+
+substitute your own subnet as appropriate. we'll also allow http and https traffic through. ufw has built-in rules that say how to handle this traffic, and it will open the right ports for you.
+
+```
+# ufw allow http
+# ufw allow https
+```
+
+if you want to log in remotely, enable ssh as well:
+
+```
+# ufw allow ssh
+```
+
+you can check the list of rules with `ufw show added`. if all looks good, turn it on:
+
+```
+# ufw enable
+```
+
+with any luck, you won't get kicked off your ssh connection, which means the firewall is allowing you through. ufw should now be blocking traffic on all other ports, which will dramatically cut down on the surface area for an attack.
+
+### private key auth
+
+chances are, even if you want to allow outside ssh connections, you don't really need to be able to log in from *anywhere*. most likely you'll only be logging in from one or two machines, like a laptop or your phone. we can configure our server to only allow authenticated devices to connect. 
+
+there's a lot of really advanced math behind private keys, math called **cryptography**, but the important part for our purposes is that each key has a public and a private part. the **public key** can be used to *encrypt* files, "locking" them, but only the **private key** can *decrypt*, or "unlock" them. we'll use this to prove that a device is authorized, by sending a locked message that only it can unlock.
+
+on your laptop or other client device, generate an ssh key. if you're on Linux, Mac OS, or Windows 10, this is probably named `ssh-keygen`. you can also add a comment to the key, so you remember which device it belongs to.
+
+```
+$ ssh-keygen -t ed25519 -C "my laptop"
+```
+
+follow the prompts to generate a private key. it will be saved in `/home/user/.ssh` (or your operating system's equivalent location), as well as a public key with a .pub file extension. you can add a passphrase during key generation, this is highly recommended if anyone else has access to your computer!
+
+:warning: **the private key should never leave this computer.**
+
+we'll need to get the public key, the one ending in .pub, onto the server somehow so it can recognize us. public keys don't need to be kept secret, so use any type of file transfer available to you. you could copy it to a USB drive and plug it into the server, or copy it by hand, or even send it to yourself over the public internet. once you get it to the server, create the file `~/.ssh/authorized_keys`. on a new line, **copy the full contents of the .pub file into the authorized_keys file.**
+
+at this time, try logging into the server from the newly-authorized client. it will ask for your key's passphrase if you set one, but it _won't_ ask for your account passphrase, since you already authenticated yourself by having the private key. you will still need to type your password to use sudo though, just in case.
+
+if that went well, you can now disable password-based auth completely. as admin, open `/etc/ssh/sshd_config` and make sure these settings are set to 'no':
+
+```
+ChallengeResponseAuthentication no
+PasswordAuthentication no
+UsePAM no
+```
+
+save the file, and restart the ssh service:
+
+```
+# service ssh reload
+```
+
+it should now be impossible to login without an authorized key. if you want to authorize more devices, repeat these steps for each device. each device should have its own private key. never let a private key leave the device that created it. if you accidentally copy a private key, remove it from authorized_keys and create a new one to replace it.
+
+### port forwarding
+
+:warning: **don't do this until you've done everything else!**
+
+it's time to make the big leap. your server is armored up and ready to face the outside world. let's open the gates. the end goal here is to forward ports 80 and 443, from the outside world to your server. if you want to log in remotely, you'll also need to forward port 22.
+
+unfortunately, port forwarding is going to be a bit different for every router. I'll share what worked for my router, a [MikroTik](https://mikrotik.com/) running RouterOS.
+
+- connect to the router web interface at <http://router.lan>.
+- switch from Quick Set to WebFig view.
+- Go to IP -> DHCP Server -> Leases.
+  - find the local address assigned to teapot. this should look like 192.168.x.x, or possibly 10.0.x.x.
+  - click on that address, and select 'make static'. this way, when teapot disconnects and reconnects, it will always get the same address. in my case it was 192.168.88.247.
+- Go to IP -> Firewall -> NAT -> New Rule.
+  - Chain: dstnat
+  - Dst. Address: \<your public IP address>
+  - Protocol: 6 (tcp)
+  - Dst. Port: 80
+  - Action: dst-nat
+  - To Addresses: \<teapot's local IP address>
+  - To Ports: 80
+- Repeat that step for port 443.
+- If you need remote login, repeat that step again for port 22. 
+
+while we're configuring the router, we'll enable **hairpin NAT**, also known as **NAT reflection** or **NAT loopback**. without this rule, the router may get confused if we try to access teapot via its *public* address while we are inside the *local* network.
+
+- Go to IP -> Firewall -> NAT -> New Rule (again):
+  - Chain: srcnat
+  - Src. Address: x.x.x.0/24 (first three bytes match teapot's local IP)
+  - Dst. Address: \<teapot's local IP address>
+  - Protocol: 6 (tcp)
+  - Out. Interface List: LAN
+  - Action: masquerade
+
+you should now be able to go to http://\<your own public IP address>, and your router will forward the traffic to teapot. congratulations, your machine is now a true part of ***the internet.***
+
+### https
+
+todo:
+
+- get a domain name from a service like <https://afraid.org>
+- set up https with a service like LetsEncrypt
 
 ## containers
 

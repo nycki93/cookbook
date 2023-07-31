@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="generator" content="pandoc" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-  <title>klay’s simple cookbook for Linux, v0.8.0</title>
+  <title>klay’s simple cookbook for Linux, v0.9.0</title>
   <style type="text/css">
       code{white-space: pre-wrap;}
       span.smallcaps{font-variant: small-caps;}
@@ -18,11 +18,15 @@
 <a href="/">home</a>
 </nav>
 <header id="title-block-header">
-<h1 class="title">klay’s simple cookbook for Linux, <a href="https://github.com/klaymu/self-host">v0.8.0</a></h1>
+<h1 class="title">klay’s simple cookbook for Linux, <a href="https://github.com/klaymu/self-host">v0.9.0</a></h1>
 </header>
 <nav id="TOC">
 <ul>
-<li><a href="#introduction">introduction</a></li>
+<li><a href="#introduction">introduction</a><ul>
+<li><a href="#why-a-cookbook">why a cookbook?</a></li>
+<li><a href="#why-all-the-lowercase">why all the lowercase?</a></li>
+<li><a href="#who-is-your-audience">who is your audience?</a></li>
+</ul></li>
 <li><a href="#materials">materials</a></li>
 <li><a href="#usernames-and-passwords">usernames and passwords</a></li>
 <li><a href="#operating-system">operating system</a></li>
@@ -30,7 +34,12 @@
 <li><a href="#mount-storage">mount storage</a></li>
 <li><a href="#backups">backups</a></li>
 <li><a href="#website">website</a></li>
-<li><a href="#networking">networking</a></li>
+<li><a href="#networking">networking</a><ul>
+<li><a href="#firewall">firewall</a></li>
+<li><a href="#private-key-auth">private key auth</a></li>
+<li><a href="#port-forwarding">port forwarding</a></li>
+<li><a href="#https">https</a></li>
+</ul></li>
 <li><a href="#containers">containers</a></li>
 <li><a href="#database">database</a></li>
 <li><a href="#file-sharing">file sharing</a></li>
@@ -228,15 +237,107 @@ lorem ipsum dolor sit amet</code></pre>
 </section>
 <section id="networking" class="level2">
 <h2>networking</h2>
-<p>your website won’t work outside your local network until you do this, but I haven’t written a guide yet, sorry. here’s the gist of it.</p>
+<p>at this point, your server is available only on your <strong>LAN</strong>, your local area network. this network is managed by your <strong>router</strong>, which is a small computer plugged into your home’s internet cable. this cable goes to an internet service provider, or <strong>ISP</strong>, and they take the traffic from your network and connect it to other networks around the world. by default, your router will protect your computers from unwanted traffic. people from around the world can’t log into your server, and they also can’t see your website. if you want to change that, you’ll need to change settings on the router.</p>
+<p><span class="emoji" data-emoji="warning">⚠️</span> <strong>don’t modify a home network without consent!</strong></p>
+<p>if you do this wrong it puts <em>everyone</em> on the network at risk, so make sure everyone in your house knows what you’re doing. if <em>anyone</em> isn’t comfortable, then do not open up your home network! you have lots of other options:</p>
 <ul>
-<li>set up a firewall using ufw</li>
-<li>set up port forwarding on your router</li>
-<li>don’t forget hairpin NAT</li>
-<li>get a domain name</li>
-<li>set up https</li>
+<li>host your website with a free host like <a href="https://neocities.org/">Neocities</a> or <a href="https://pages.github.com/">GitHub Pages</a>.</li>
+<li>have a friend host instead and share the server with them.</li>
+<li>rent a virtual server from a service like <a href="https://www.digitalocean.com/">DigitalOcean</a> or <a href="https://aws.amazon.com/">Amazon Web Services (AWS)</a>.</li>
 </ul>
-<p>todo: write this section, maybe even make this an entirely separate guide honestly</p>
+<p>if you’re sure you want to open up your home network, read on…</p>
+<section id="firewall" class="level3">
+<h3>firewall</h3>
+<p>if you do everything right, the only server that will be available to the outside world is our little teapot, and only people with an account will be able to get in.</p>
+<p><span class="emoji" data-emoji="warning">⚠️</span> <strong>you <em>did</em> pick a long, random passphrase, right? if not, go back and do that <em>now</em>.</strong></p>
+<p>however, for a little extra safety, we’ll use <code>ufw</code> and <code>fail2ban</code> to limit what kind of messages teapot will answer. <code>ufw</code> allows us to ignore bad requests, and <code>fail2ban</code> allows us to block people or bots who make too many wrong guesses.</p>
+<p><span class="emoji" data-emoji="bulb">💡</span> I got this information almost verbatim from the <a href="https://www.raspberrypi.com/documentation/computers/configuration.html">Raspberry Pi Foundation</a>, seriously they’re awesome people.</p>
+<p>install <code>ufw</code> and <code>fail2ban</code>. unlike other system services, these don’t start automatically, since you can lock yourself out with them. that’s why it’s important we configure these <em>before</em> changing settings on the router.</p>
+<pre><code># apt install ufw fail2ban</code></pre>
+<p>we’ll also need to know the router’s local address. we can find this with the <code>ip</code> function.</p>
+<pre><code>$ ip route</code></pre>
+<p>the first line of the output should look like this:</p>
+<pre><code>default via 192.168.20.1 dev eth0</code></pre>
+<p>if you’re using a wireless connection, you’ll see wlan0 instead of eth0. underneath the first line, you should see a similar number, but with /24 at the end, like</p>
+<pre><code>192.168.20.0/24 dev eth0</code></pre>
+<p>this defines the local <strong>subnet</strong>, the list of IPs that count as part of your local area network. the /24 means that the first 24 bits are fixed. there are 8 bits in a byte, so 24 bits is 3 bytes, meaning that this subnet includes all addresses of the form 192.168.20.x.</p>
+<p>to avoid locking ourself out, we’ll allow anything from the local area network to connect:</p>
+<pre><code># ufw allow from 192.168.20.0/24</code></pre>
+<p>substitute your own subnet as appropriate. we’ll also allow http and https traffic through. ufw has built-in rules that say how to handle this traffic, and it will open the right ports for you.</p>
+<pre><code># ufw allow http
+# ufw allow https</code></pre>
+<p>if you want to log in remotely, enable ssh as well:</p>
+<pre><code># ufw allow ssh</code></pre>
+<p>you can check the list of rules with <code>ufw show added</code>. if all looks good, turn it on:</p>
+<pre><code># ufw enable</code></pre>
+<p>with any luck, you won’t get kicked off your ssh connection, which means the firewall is allowing you through. ufw should now be blocking traffic on all other ports, which will dramatically cut down on the surface area for an attack.</p>
+</section>
+<section id="private-key-auth" class="level3">
+<h3>private key auth</h3>
+<p>chances are, even if you want to allow outside ssh connections, you don’t really need to be able to log in from <em>anywhere</em>. most likely you’ll only be logging in from one or two machines, like a laptop or your phone. we can configure our server to only allow authenticated devices to connect.</p>
+<p>there’s a lot of really advanced math behind private keys, math called <strong>cryptography</strong>, but the important part for our purposes is that each key has a public and a private part. the <strong>public key</strong> can be used to <em>encrypt</em> files, “locking” them, but only the <strong>private key</strong> can <em>decrypt</em>, or “unlock” them. we’ll use this to prove that a device is authorized, by sending a locked message that only it can unlock.</p>
+<p>on your laptop or other client device, generate an ssh key. if you’re on Linux, Mac OS, or Windows 10, this is probably named <code>ssh-keygen</code>. you can also add a comment to the key, so you remember which device it belongs to.</p>
+<pre><code>$ ssh-keygen -t ed25519 -C &quot;my laptop&quot;</code></pre>
+<p>follow the prompts to generate a private key. it will be saved in <code>/home/user/.ssh</code> (or your operating system’s equivalent location), as well as a public key with a .pub file extension. you can add a passphrase during key generation, this is highly recommended if anyone else has access to your computer!</p>
+<p><span class="emoji" data-emoji="warning">⚠️</span> <strong>the private key should never leave this computer.</strong></p>
+<p>we’ll need to get the public key, the one ending in .pub, onto the server somehow so it can recognize us. public keys don’t need to be kept secret, so use any type of file transfer available to you. you could copy it to a USB drive and plug it into the server, or copy it by hand, or even send it to yourself over the public internet. once you get it to the server, create the file <code>~/.ssh/authorized_keys</code>. on a new line, <strong>copy the full contents of the .pub file into the authorized_keys file.</strong></p>
+<p>at this time, try logging into the server from the newly-authorized client. it will ask for your key’s passphrase if you set one, but it <em>won’t</em> ask for your account passphrase, since you already authenticated yourself by having the private key. you will still need to type your password to use sudo though, just in case.</p>
+<p>if that went well, you can now disable password-based auth completely. as admin, open <code>/etc/ssh/sshd_config</code> and make sure these settings are set to ‘no’:</p>
+<pre><code>ChallengeResponseAuthentication no
+PasswordAuthentication no
+UsePAM no</code></pre>
+<p>save the file, and restart the ssh service:</p>
+<pre><code># service ssh reload</code></pre>
+<p>it should now be impossible to login without an authorized key. if you want to authorize more devices, repeat these steps for each device. each device should have its own private key. never let a private key leave the device that created it. if you accidentally copy a private key, remove it from authorized_keys and create a new one to replace it.</p>
+</section>
+<section id="port-forwarding" class="level3">
+<h3>port forwarding</h3>
+<p><span class="emoji" data-emoji="warning">⚠️</span> <strong>don’t do this until you’ve done everything else!</strong></p>
+<p>it’s time to make the big leap. your server is armored up and ready to face the outside world. let’s open the gates. the end goal here is to forward ports 80 and 443, from the outside world to your server. if you want to log in remotely, you’ll also need to forward port 22.</p>
+<p>unfortunately, port forwarding is going to be a bit different for every router. I’ll share what worked for my router, a <a href="https://mikrotik.com/">MikroTik</a> running RouterOS.</p>
+<ul>
+<li>connect to the router web interface at <a href="http://router.lan" class="uri">http://router.lan</a>.</li>
+<li>switch from Quick Set to WebFig view.</li>
+<li>Go to IP -&gt; DHCP Server -&gt; Leases.
+<ul>
+<li>find the local address assigned to teapot. this should look like 192.168.x.x, or possibly 10.0.x.x.</li>
+<li>click on that address, and select ‘make static’. this way, when teapot disconnects and reconnects, it will always get the same address. in my case it was 192.168.88.247.</li>
+</ul></li>
+<li>Go to IP -&gt; Firewall -&gt; NAT -&gt; New Rule.
+<ul>
+<li>Chain: dstnat</li>
+<li>Dst. Address: &lt;your public IP address&gt;</li>
+<li>Protocol: 6 (tcp)</li>
+<li>Dst. Port: 80</li>
+<li>Action: dst-nat</li>
+<li>To Addresses: &lt;teapot’s local IP address&gt;</li>
+<li>To Ports: 80</li>
+</ul></li>
+<li>Repeat that step for port 443.</li>
+<li>If you need remote login, repeat that step again for port 22.</li>
+</ul>
+<p>while we’re configuring the router, we’ll enable <strong>hairpin NAT</strong>, also known as <strong>NAT reflection</strong> or <strong>NAT loopback</strong>. without this rule, the router may get confused if we try to access teapot via its <em>public</em> address while we are inside the <em>local</em> network.</p>
+<ul>
+<li>Go to IP -&gt; Firewall -&gt; NAT -&gt; New Rule (again):
+<ul>
+<li>Chain: srcnat</li>
+<li>Src. Address: x.x.x.0/24 (first three bytes match teapot’s local IP)</li>
+<li>Dst. Address: &lt;teapot’s local IP address&gt;</li>
+<li>Protocol: 6 (tcp)</li>
+<li>Out. Interface List: LAN</li>
+<li>Action: masquerade</li>
+</ul></li>
+</ul>
+<p>you should now be able to go to http://&lt;your own public IP address&gt;, and your router will forward the traffic to teapot. congratulations, your machine is now a true part of <strong><em>the internet.</em></strong></p>
+</section>
+<section id="https" class="level3">
+<h3>https</h3>
+<p>todo:</p>
+<ul>
+<li>get a domain name from a service like <a href="https://afraid.org" class="uri">https://afraid.org</a></li>
+<li>set up https with a service like LetsEncrypt</li>
+</ul>
+</section>
 </section>
 <section id="containers" class="level2">
 <h2>containers</h2>
