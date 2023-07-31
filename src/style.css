@@ -25,6 +25,7 @@ a {
 }
 code {
     color: var(--code);
+    font-size: 1rem;
 }
 pre, pre.sourceCode {
     color: var(--code);

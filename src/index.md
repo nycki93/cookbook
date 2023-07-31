@@ -40,49 +40,9 @@ you can also adapt these directions to existing hardware you may already own, li
 [armbian]: https://www.armbian.com
 [DigitalOcean]: https://www.digitalocean.com
 
-## operating system
-
-first, download and install your operating system. there are lots of guides on how to install Linux already, [here's](https://www.raspberrypi.com/tutorials/how-to-set-up-raspberry-pi) one for Raspbian. you may need to plug in an external keyboard and monitor while getting set up. later we can unplug those again, giving us a CLI or 'headless' server.
-
-<!-- it's important to name drop CLI and 'headless' here so a newbie knows which version of Raspbian to download -->
-
-if you're using Raspbian, you'll be given a default user named 'pi' with the password 'raspberry'. if you're using another Linux distribution, you'll likely be prompted to make up your own. we'll cover how to change this later.
-
-some commands are forbidden to normal users, but your default user should have the 'sudo' permission. sudo stands for 'super user do', and it means 'do the next thing as an administrator'. you can use `sudo <whatever>` for a single command, or enter interactive mode with `sudo -i`. in interactive mode, *all* your commands will be admin commands, until you say `exit`.
-
-:warning: **there is no undo button! if you say something with sudo, make sure you mean it!**
-
-throughout this guide, I'll be using `$` at the start of a command if you run it as a normal user, or `#` if you run it as admin. either way, you don't actually type this symbol yourself, it should already appear on your command line.
-
-the first thing we'll do is install system updates. 'apt' is the package manager built into Debian, it holds all your system software and lots of fun optional stuff too. 'update' looks for packages that have changed on the remote package server, and 'upgrade' installs upgraded versions of the packages you already have.
-```
-# apt update
-# apt upgrade
-```
-next, we'll set your hostname. this is how you will appear to other computers on the network. for this example I'll use 'teapot'.
-```
-# hostnamectl set-hostname teapot
-```
-Raspbian comes with avahi-daemon preconfigured, which broadcasts your hostname to the network. if you are on another distribution, you can install this program with
-```
-# apt install avahi-daemon
-```
-this is a good time to reboot, to make sure the updated hostname is in use.
-```
-# reboot
-```
-after a minute, you should now be able to log in remotely from another computer, using
-```
-$ ssh pi@teapot
-```
-or
-```
-$ ssh pi@teapot.local
-```
-
 ## usernames and passwords
 
-at this point you should be able to log into your system from your home network, but not from the public internet. it's important that before you allow connections from strangers, you set up a good username and password. there are bots out there that do nothing but guess random usernames and passwords all day, and they *will* find you, so you need to be prepared.
+at some point you'll probably want to make your server available on the internet. there are bots out there that do nothing but guess random usernames and passwords all day, and they *will* find you, so you need to be prepared.
 
 for your username, pick something short and catchy. in my experience, a typical linux username is from 3 to 8 characters long. if you have a short name like 'alice' or 'bob' you can use that. if you have a nickname online like 'azure' or 'luna' then that works too. if you have a middle name, you can use your initials, like 'jfk'. your username should be all lowercase.
 
@@ -90,19 +50,100 @@ for your password, the most important factor is length. I know you've been told 
 
 luckily there's a better way. using a tool like [xkpasswd](https://xkpasswd.net/s/) or [diceware](https://theworld.com/~reinhold/diceware.html), you can convert randomness into words. using the diceware list, you can roll 25 six-sided dice to get a random 25-digit sequence, and then convert each 5 digits into a word, to get a 5-word phrase. the odds of two people getting the same 5-word phrase are 1 in 6^25, which is approximately equal to 2^64, so this password has 64 bits of entropy. that's enough to make most hackers give up and move onto an easier target. go generate a password now, and save it somewhere safe, like a password manager program, or a piece of paper tucked inside a book. don't be afraid to write things down; you can't hack a piece of paper.
 
-once you have a username and passphrase picked out, create a new user for yourself:
+## operating system
+
+time to download and install your operating system. there are lots of guides on how to install Linux already, [here's](https://www.raspberrypi.com/documentation/computers/getting-started.html) one for Raspbian. I'll be using "Raspberry Pi OS Lite (64-Bit), with the default settings. with these settings, there is no remote login available; you will need to plug a keyboard and monitor directly into the pi. on the first boot, you'll be prompted to enter the username and password for the initial user. after that, you'll be given a login prompt. log in with the username and password you just set. some operating systems display nothing at a password prompt, not even stars. once you log in, you'll see some system information, and then a prompt that looks like
+
 ```
-# adduser alice
+user@raspberrypi:~ $
 ```
-and give them access to the sudo command:
+
+this is a **CLI**, a command line interface. from left to right, this contains
+
+- your name
+- the machine's name
+- your current directory. `~` means "home", and is short for `/home/user`.
+- a command prompt. this will be `$` if you are in user mode, or `#` if you are in admin mode.
+
+if you've ever used a bot in a chatroom, you already know how to use a command line interface! it's a system where you type an instruction, and the computer answers you. here are some examples of commands you can type:
+
+- `whoami`: ask the computer what your name is.
+- `hostname`: ask the computer what *its* name is.
+- `pwd`: ask the computer where you are.
+- `ls`: look at the files in your current location.
+- `cd <somewhere>`: go somewhere else.
+- `echo <something>`: ask the computer to repeat something back to you.
+- `nano <filename>`: edit a text file.
+- `cat <filename>`: print a text file to the screen.
+
+if this is your first time using a command line interface, try some of these commands now. use `nano myfile.txt` to open a text file, write some text to it, then save with ctrl-o, and exit with ctrl-x. use `ls` to look at that file, then use `cat myfile.txt` to have the computer read it back to you. pat yourself on the back, you're learning so much!
+
+soon we'll unplug the keyboard and monitor from this computer, making it a 'headless' server. before we can do that we need to run a few commands as administrator, or 'root'. we'll do this with a very powerful command called `sudo`. sudo stands for 'super user do', and it means 'do the next thing as an administrator'. you can use `sudo <whatever>` for a single command, or enter interactive mode with `sudo -i`. in interactive mode, *all* your commands will be admin commands, until you say `exit`.
+
+:warning: **there is no undo button! if you say something with sudo, make sure you mean it!**
+
+throughout this guide, I'll be using `$` at the start of a command if you run it as a normal user, or `#` if you run it as admin. either way, you don't actually type this symbol yourself, it should already appear on your command line.
+
+we'll need to do these things before we can go headless:
+
+- change `sudo` to require a password
+- change the hostname from the default
+- connect to a network
+- enable remote login
+- install operating system updates
+- reboot
+
+first we'll change the sudo rules for our account. there should be a config file at `/etc/sudoers.d/010_pi-nopasswd`. we'll use the special `visudo` command to edit it, which should launch `nano` like before, but with special safety guards to catch us if we lock ourselves out of administrator mode.
 ```
-# usermod -aG sudo
+$ sudo visudo /etc/sudoers.d/010_pi-nopasswd
 ```
-you can't remove the 'pi' user while you're still logged in as it. log out, then log back in as alice. make sure you can use sudo:
+you should see a single line, like
+```
+user ALL=(ALL) NOPASSWD: ALL
+```
+remove the `NOPASSWD:` instruction, so this file reads
+```
+user ALL=(ALL) ALL
+```
+save and quit. from now on, if you haven't used `sudo` in a few minutes, the system will ask for your password. this way if you accidentally leave yourself logged in, and someone else takes over your session, they won't automatically get sudo access.
+
+we can do the next few steps with the `raspi-config` tool.
+```
+$ sudo raspi-config
+```
+the hostname is under System Options -> Hostname. I set mine to 'teapot'.
+
+if your machine is plugged directly into your home router with a patch cable, you already have network access, otherwise set up wireless with System Options -> Wireless LAN.
+
+to log in remotely, go to Interface Options -> SSH.
+
+select 'Finish'. you'll be prompted to reboot, but don't yet, we'll reboot later after installing some updates. in Debian Linux, we update packages using a tool called `apt`. `apt update` checks for updated packages, and `apt upgrade` installs them. run both these commands now, using the interactive version of `sudo`.
 ```
 $ sudo -i
-# exit
+# apt update
+# apt upgrade
 ```
-you can now remove the pi user.
 
-*todo: test this to make sure removing the pi user doesn't break anything*
+finally, if you're on a Raspberry Pi, then `avahi-daemon` is installed automatically. if not, you may need to install it yourself. this program broadcasts your hostname to the network, so you can log in remotely without configuring anything on your router.
+
+```
+# apt install avahi-daemon
+```
+
+now go ahead and reboot, to make sure your new hostname is in use.
+
+```
+# reboot
+```
+
+after a minute, you should now be able to log in remotely from another computer, using
+
+```
+$ ssh user@teapot
+```
+or
+```
+$ ssh user@teapot.local
+```
+
+if this works, congrats! you can now unplug the keyboard and monitor. you've created a headless server.
