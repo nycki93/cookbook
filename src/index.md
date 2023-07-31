@@ -1,5 +1,5 @@
 ---
-title: klay's simple cookbook for Linux, [v0.8.0a](https://github.com/klaymu/self-host)
+title: klay's simple cookbook for Linux, [v0.8.0-r2](https://github.com/klaymu/self-host)
 ...
 
 ## introduction
@@ -147,3 +147,151 @@ $ ssh user@teapot.local
 ```
 
 if this works, congrats! you can now unplug the keyboard and monitor. you've created a headless server.
+
+## format storage
+
+the Raspberry Pi uses a MicroSD card as the operating system disk. it's convenient; if the OS breaks you can just pull its brain out, factory reset it, and pop it back in. however, I don't want to store all my user data on that brain card. I think it's better if you have a secondary disk that contains *only* the stuff you create yourself. that way if something goes wrong and you have to reset the brain card, you don't lose any of your personal data.
+
+there are different formats for a data disk. the format determines exactly where the data and metadata will appear in each 'chunk' of the disk. Windows typically uses [NTFS](https://en.wikipedia.org/wiki/NTFS), which supports metadata for ownership and last modified time, but not for fine-grained access like whether a file is shared with guests. Linux uses a format that does allow this fine-grained access, called [ext4](https://en.wikipedia.org/wiki/Ext4), so that's what we need to format the data disk as.
+
+first we need to identify the disk's device file. in Linux, everything you can read or write to is treated as a file, including a USB device like an external disk. note that this device file is *not* the same as a filesystem mount. we'll cover mounting later.
+
+with the data disk unplugged, run the command `fd`. plug the disk in, and run `fd` again. compare its output to the previous run. there should be exactly one new entry, and it should look like `/dev/sda` or `/dev/sda2`. if you're not sure which disk it is, don't risk it, ask a friend for help.
+
+<!-- todo: where can you find a friend to ask? -->
+
+:warning: **warning! this will erase everything on the disk!**
+
+format the disk, and label it. this will make it easier to mount later.
+```
+# mkfs.ext4 /dev/sda
+# e2label /dev/sda teapot-data
+```
+
+## mount storage
+
+Linux doesn't use drive letters like Windows does. instead, every disk's filesystem lives at some **path**. the main, or 'root' path is `/`, a single slash. the root path belongs to the operating system disk, in this case the MicroSD card. we'll create a new sub-path at `/data` for our data disk.
+
+```
+# mkdir /data
+```
+
+when the system boots up, it looks in the config file `/etc/fstab` to find out where we want other filesystems to be loaded. since we gave our disk a label earlier, we can mount it using that label. open the file with `nano`, and add this line to the end of it:
+
+```
+LABEL=teapot-data /data ext4 nofail,x-systemd.device-timeout=5s,x-systemd.automount 0 0
+```
+
+there's a lot going on here. you can [read more](https://www.freedesktop.org/software/systemd/man/systemd.mount.html#fstab) about how fstab and systemd work, but basically what we're saying is
+
+- find the disk labeled 'teapot-data' and mount it at `/data`, as an ext4 filesystem.
+- nofail: if the disk is missing at boot time, skip it and finish booting anyway.
+- x-systemd.device-timeout=5s: wait 5 seconds before giving up.
+- x-systemd.automount: if someone tries to access the disk and it's not mounted, try mounting it again.
+
+we're using a delayed mounting process here because we want to make sure our server still comes online, even if the disk fails to load. if the server crashes on boot, we'll have to go plug the monitor and keyboard back in to fix it. with nofail, we have a chance to fix it remotely.
+
+save and exit the file if you haven't already, and then check it:
+
+```
+# mount --all --fake --verbose
+```
+
+- --all: apply all the rules from `/etc/fstab`.
+- --fake: don't *actually* apply the rules, just check that they're written correctly.
+- --verbose: give detailed feedback. Linux programs typically say nothing unless there is an error.
+
+if all your mounts pass inspection, now is a good time to reboot the machine.
+
+```
+# reboot
+```
+
+## backups
+
+I'll write a longer section about backups later. basically: every month or so, plug in the second disk, and copy everything from the first disk to the second one. it's a quick and dirty solution and it's better than having no backups at all. the command you want is
+
+```
+rsync -axHAWXS --numeric-ids --info=progress2 <source> <destination>
+```
+
+explanation [here](https://superuser.com/a/1185401).
+
+## website
+
+we're getting into the fun stuff now. one of the coolest things you can do with your Linux server is host a website. a little chunk of the world wide web that belongs just to you. all you need to be a website is to have a program running and ready to answer [HTTP](https://en.wikipedia.org/wiki/HTTP) requests with [HTML](https://en.wikipedia.org/wiki/HTML) text. HTTP is the HyperText Transfer Protocol, and 'HyperText' is just a fancy word for 'text with [hyperlinks](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/a) in it'.
+
+put briefly: the internet is made of programs that exchange text files with each other!
+
+we could write a web server from scratch, but to get started we'll use [Apache](https://httpd.apache.org), a free, open-source, and well-established web server. [nginx](https://nginx.org) has a free version too, but Apache is good enough for our purposes.
+
+```
+# apt install apache2
+```
+
+it should start itself automatically. go ahead and check <http://teapot.local>, and you should see the test page! now we'll write our own page hosted on the data disk. we'll make a folder for it called `/data/teapot.local` and a subfolder of that called `site`.
+
+```
+# mkdir /data/teapot.local
+# mkdir /data/teapot.local/site
+```
+
+when making multiple levels of new directories like this, you can use this shortcut to create the whole chain in one go:
+
+```
+# mkdir -p /data/teapot.local/site
+```
+
+we're about to do a bunch of typing to set up a basic site definition. you can copy and paste this if you want, but I recommend typing it by hand. it'll train your brain to recognize pieces of the code. remember, use `nano` to create or edit text files.
+
+contents of `/data/teapot.local/site.conf`:
+
+```
+<VirtualHost *:80>
+
+ServerName teapot.local
+DocumentRoot /data/teapot.local/site
+
+<Directory />
+  Require all granted
+</Directory>
+
+</VirtualHost>
+```
+
+this is just about the simplest possible website definition. we're saying "hi, I am a web server listening to port 80, serving pages for the website 'teapot.local'." a **port** is like a post office box for a computer. it allows you to address a specific program inside the machine. port 80 is an old and well-known port which is used for most HTTP traffic.
+
+next we define the DocumentRoot to be `/data/teapot.local/site`, instead of Apache's default of `/var/www/html`. we also tell Apache that it's allowed to share these files. by default, if no filename is specified, Apache will look for one called `index.html`, so we'll write that too.
+
+contents of `/data/teapot.local/site/index.html`:
+
+```
+<!DOCTYPE html>
+<html lang="en">
+<meta charset="utf-8">
+<title>my website!</title>
+<h1>my website!</h1>
+lorem ipsum dolor sit amet
+```
+
+HTML is what your web browser sees. in fact, if you're on a desktop browser, you can press ctrl-u right now to see the HTML text behind *this page!* what I've written for this example is the bare minimum to follow the modern html5 standard.
+
+- originally the `<!DOCTYPE>` tag was used to announce what version of html you were using, but these days we don't really care. we just assume everyone's using 'normal' html.
+- the `<html>` tag is traditional, but in html5 it's actually [optional](https://html.spec.whatwg.org/multipage/semantics.html#the-html-element), as is the closing `</html>` tag. we include the opening tag here so we can specify `lang="en"`, which tells the browser that our website is written in English. if you are not writing in English, substitute the appropriate [language code](https://www.w3schools.com/tags/ref_language_codes.asp).
+- use a `<meta>` tag to let the browser know we're using utf-8. once upon a time there were different text encodings for every language. it's really a [miracle](https://www.youtube.com/watch?v=MijmeoH9LT4) that utf-8 exists. this encoding was written by the geniuses at [Unicode](https://home.unicode.org). it works great for English, and pretty well for *every other text in every known language.* if this emoji works (⚠️) and isn't displayed like aE` or something, then you can thank utf-8.
+- a title! the `<title>` tag is required in html5. this is the text that appears in your browser tab.
+- a heading! this is usually the same as the title, but it's optional. `<h1>` is used for the main heading, `<h2>` for a sub-heading, all the way down to `<h6>`.
+- finally, I put some [generic text](https://www.lipsum.com) here with no tags at all, just to pad out the page a little.
+
+once you've written both of those files, we can tell Apache our site is ready. by the way, when typing these long paths, try pressing 'tab' once or twice, sometimes your shell will auto-complete words. neat!
+
+```
+# ln -s /data/teapot.local/site.conf /etc/apache2/sites-available/teapot.local.conf
+# a2ensite teapot.local
+# a2dissite 000-default
+# systemctl reload apache2
+```
+
+now go back to <http://teapot.local> and hit refresh, and you should see your new website! at this point you can go explore the world of HTML. the nice folks at [Neocities](https://neocities.org/tutorials) are helping to keep this art alive, go check them out! and remember, you can press ctrl-u to view the HTML for any page you're on.
+
+*p.s. up until this point I've been writing with pure HTML myself, but as this page is getting rather long, I'm actually switching to a helper tool called [pandoc](https://pandoc.org/). I may cover this tool in a later tutorial.*
