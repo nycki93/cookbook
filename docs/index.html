@@ -30,6 +30,12 @@
 <li><a href="#mount-storage">mount storage</a></li>
 <li><a href="#backups">backups</a></li>
 <li><a href="#website">website</a></li>
+<li><a href="#networking">networking</a></li>
+<li><a href="#containers">containers</a></li>
+<li><a href="#database">database</a></li>
+<li><a href="#file-sharing">file sharing</a></li>
+<li><a href="#apps">apps</a></li>
+<li><a href="#auth">auth</a></li>
 </ul>
 </nav>
 <section id="introduction" class="level2">
@@ -56,26 +62,26 @@
 </section>
 <section id="materials" class="level2">
 <h2>materials</h2>
-<p>I’ll be using a <a href="https://www.raspberrypi.com">Raspberry Pi 4b</a> and installing [Raspberry Pi OS]. it’s also known as Raspbian, since it’s based on <a href="https://www.debian.org/doc">Debian</a> Linux. any Debian-like OS will work for this tutorial. if the Raspberry Pi isn’t available where and when you are, some good alternatives are the <a href="https://libre.computer/products/roc-rk3328-cc">Renegade</a> or the <a href="https://www.pine64.org/devices/single-board-computers/rock64">ROCK64</a>, running <a href="https://www.armbian.com">armbian</a> Linux.</p>
+<p>I’ll be using a <a href="https://www.raspberrypi.com">Raspberry Pi 4b</a> and installing <a href="https://www.raspberrypi.com/software">Raspberry Pi OS</a> Lite (64-bit). it’s also known as Raspbian, since it’s based on <a href="https://www.debian.org/doc">Debian</a> Linux. any Debian-like OS will work for this tutorial. if the Raspberry Pi isn’t available where and when you are, some good alternatives are the <a href="https://libre.computer/products/roc-rk3328-cc">Renegade</a> or the <a href="https://www.pine64.org/devices/single-board-computers/rock64">ROCK64</a>. If Raspbian doesn’t run on your device, try <a href="https://www.armbian.com">armbian</a>.</p>
 <p>you’ll also need a MicroSD card, a hard drive, and a second hard drive for backup. I recommend a 64GB MicroSD card and two 2TB hard drives. the Pi can power one hard drive via USB, but if you want to plug both in at once you’ll need a powered hard drive enclosure or a powered USB hub.</p>
-<p>you can also adapt these directions to existing hardware you may already own, like an old laptop or desktop pc. you can also rent a virtual machine from a remote datacenter! the cheapest virtual machine on <a href="https://www.digitalocean.com">DigitalOcean</a> right now (as of 2023 July) costs 6 USD per month, and comes with 25GB of storage. renting a machine in a datacenter means you gget the perks of high-speed internet all day and night, which is great if you are running a game server and need a fast connection. however, you’ll pay 10 USD per month for each 100GB of additional storage, so it’s not great if you want to host a huge media archive.</p>
+<p>you can also adapt these directions to existing hardware you may already own, like an old laptop or desktop pc. you can also rent a virtual machine from a remote datacenter! the cheapest virtual machine on <a href="https://www.digitalocean.com">DigitalOcean</a> right now (as of 2023 July) costs 6 USD per month, and comes with 25GB of storage. renting a machine in a datacenter means you get the perks of high-speed internet all day and night, which is great if you are running a game server and need a fast connection. however, you’ll pay 10 USD per month for each 100GB of additional storage, so it’s not great if you want to host a huge media archive.</p>
 <!-- todo: what about S3-compatible storage? -->
 </section>
 <section id="usernames-and-passwords" class="level2">
 <h2>usernames and passwords</h2>
 <p>at some point you’ll probably want to make your server available on the internet. there are bots out there that do nothing but guess random usernames and passwords all day, and they <em>will</em> find you, so you need to be prepared.</p>
 <p>for your username, pick something short and catchy. in my experience, a typical linux username is from 3 to 8 characters long. if you have a short name like ‘alice’ or ‘bob’ you can use that. if you have a nickname online like ‘azure’ or ‘luna’ then that works too. if you have a middle name, you can use your initials, like ‘jfk’. your username should be all lowercase.</p>
-<p>for your password, the most important factor is length. I know you’ve been told that you need to add weird symbols and stuff in it, but that rule is for older more limited systems. it’s the 64-bit era, baby! the only thing that matters is how much entropy your password has. <strong>entropy</strong> is basically a measure of how unlikely something is to happen twice. like if I flip ten coins and you flip ten coins and we get the same sequence, the odds of that happening are 1 in 2^10, so we say that that particular sequence of flips has 10 “bits” of entropy. it’s recommended that your password have about 60 to 80 bits of entropy. yikes, that’s a lot of coin flips to memorize!</p>
-<p>luckily there’s a better way. using a tool like <a href="https://xkpasswd.net/s/">xkpasswd</a> or <a href="https://theworld.com/~reinhold/diceware.html">diceware</a>, you can convert randomness into words. using the diceware list, you can roll 25 six-sided dice to get a random 25-digit sequence, and then convert each 5 digits into a word, to get a 5-word phrase. the odds of two people getting the same 5-word phrase are 1 in 6^25, which is approximately equal to 2^64, so this password has 64 bits of entropy. that’s enough to make most hackers give up and move onto an easier target. go generate a password now, and save it somewhere safe, like a password manager program, or a piece of paper tucked inside a book. don’t be afraid to write things down; you can’t hack a piece of paper.</p>
+<p>for your password, the most important factor is length. maybe you’ve been told that you need to add weird symbols and stuff in it, but that rule is for more limited systems. it’s the 64-bit era, baby! the only thing that matters is how much entropy your password has. <strong>entropy</strong> is basically a measure of how unlikely something is to happen by accident. like if I flip ten coins and you flip ten coins and we get the same sequence, the odds of that happening are 1 in 2^10, so we say that that particular sequence of flips has 10 ‘bits’ of entropy. it’s recommended that your password have about 60 to 80 bits of entropy. yikes, that’s a lot of coin flips to memorize!</p>
+<p>luckily there’s a better way. using a tool like <a href="https://xkpasswd.net/s/">xkpasswd</a> or <a href="https://theworld.com/~reinhold/diceware.html">diceware</a>, you can convert randomness into words. using the diceware list, you can roll 25 six-sided dice to get a random 25-digit sequence, and then convert each 5 digits into a word, to get a 5-word phrase. the odds of two people getting the same 5-word phrase are 1 in 6^25, which is approximately equal to 2^64, so this password has 64 bits of entropy. that’s enough to make most hackers give up and move onto an easier target. go generate a password now, and save it somewhere safe, like a password manager program, or a piece of paper tucked inside a book. don’t be afraid to write things down; sometimes paper is safer.</p>
 </section>
 <section id="operating-system" class="level2">
 <h2>operating system</h2>
-<p>time to download and install your operating system. there are lots of guides on how to install Linux already, <a href="https://www.raspberrypi.com/documentation/computers/getting-started.html">here’s</a> one for Raspbian. I’ll be using "Raspberry Pi OS Lite (64-Bit), with the default settings. with these settings, there is no remote login available; you will need to plug a keyboard and monitor directly into the pi. on the first boot, you’ll be prompted to enter the username and password for the initial user. after that, you’ll be given a login prompt. log in with the username and password you just set. some operating systems display nothing at a password prompt, not even stars. once you log in, you’ll see some system information, and then a prompt that looks like</p>
+<p>time to download and install your operating system. there are lots of guides on how to install Linux already, <a href="https://www.raspberrypi.com/documentation/computers/getting-started.html">here’s</a> one for Raspbian. I’ll be using "Raspberry Pi OS Lite (64-Bit), with the default settings. with these settings, there is no remote login available; you will need to plug a keyboard and monitor directly into the pi. on the first boot, you’ll be prompted to enter the username and password for the initial user. after that, you’ll be given a login prompt. log in with the username and password you just set. some operating systems display nothing at a password prompt, not even stars. once you log in, you’ll see some system information, and then a prompt that looks like this:</p>
 <pre><code>user@raspberrypi:~ $</code></pre>
 <p>this is a <strong>CLI</strong>, a command line interface. from left to right, this contains</p>
 <ul>
-<li>your name</li>
-<li>the machine’s name</li>
+<li>your name.</li>
+<li>the machine’s name.</li>
 <li>your current directory. <code>~</code> means “home”, and is short for <code>/home/user</code>.</li>
 <li>a command prompt. this will be <code>$</code> if you are in user mode, or <code>#</code> if you are in admin mode.</li>
 </ul>
@@ -91,7 +97,7 @@
 <li><code>cat &lt;filename&gt;</code>: print a text file to the screen.</li>
 </ul>
 <p>if this is your first time using a command line interface, try some of these commands now. use <code>nano myfile.txt</code> to open a text file, write some text to it, then save with ctrl-o, and exit with ctrl-x. use <code>ls</code> to look at that file, then use <code>cat myfile.txt</code> to have the computer read it back to you. pat yourself on the back, you’re learning so much!</p>
-<p>soon we’ll unplug the keyboard and monitor from this computer, making it a ‘headless’ server. before we can do that we need to run a few commands as administrator, or ‘root’. we’ll do this with a very powerful command called <code>sudo</code>. sudo stands for ‘super user do’, and it means ‘do the next thing as an administrator’. you can use <code>sudo &lt;whatever&gt;</code> for a single command, or enter interactive mode with <code>sudo -i</code>. in interactive mode, <em>all</em> your commands will be admin commands, until you say <code>exit</code>.</p>
+<p>soon we’ll unplug the keyboard and monitor from this computer, making it a ‘headless’ server. before we can do that we need to run a few commands as administrator, or ‘root’. we’ll do this with a very powerful command called <code>sudo</code>. sudo stands for ‘super user do’, and it means ‘do the next thing as an administrator’. you can use <code>sudo &lt;command&gt;</code> for a single command, or enter interactive mode with <code>sudo -i</code>. in interactive mode, <em>all</em> your commands will be admin commands, until you say <code>exit</code>.</p>
 <p><span class="emoji" data-emoji="warning">⚠️</span> <strong>there is no undo button! if you say something with sudo, make sure you mean it!</strong></p>
 <p>throughout this guide, I’ll be using <code>$</code> at the start of a command if you run it as a normal user, or <code>#</code> if you run it as admin. either way, you don’t actually type this symbol yourself, it should already appear on your command line.</p>
 <p>we’ll need to do these things before we can go headless:</p>
@@ -119,7 +125,7 @@
 <pre><code>$ sudo -i
 # apt update
 # apt upgrade</code></pre>
-<p>finally, if you’re on a Raspberry Pi, then <code>avahi-daemon</code> is installed automatically. if not, you may need to install it yourself. this program broadcasts your hostname to the network, so you can log in remotely without configuring anything on your router.</p>
+<p>finally, if you’re on a Raspberry Pi, then <code>avahi-daemon</code> is installed automatically. if not, you may need to install it yourself. this program broadcasts your hostname to the network, so you can log in remotely without configuring your router.</p>
 <pre><code># apt install avahi-daemon</code></pre>
 <p>now go ahead and reboot, to make sure your new hostname is in use.</p>
 <pre><code># reboot</code></pre>
@@ -219,6 +225,89 @@ lorem ipsum dolor sit amet</code></pre>
 # systemctl reload apache2</code></pre>
 <p>now go back to <a href="http://teapot.local" class="uri">http://teapot.local</a> and hit refresh, and you should see your new website! at this point you can go explore the world of HTML. the nice folks at <a href="https://neocities.org/tutorials">Neocities</a> are helping to keep this art alive, go check them out! and remember, you can press ctrl-u to view the HTML for any page you’re on.</p>
 <p><em>p.s. up until this point I’ve been writing with pure HTML myself, but as this page is getting rather long, I’m actually switching to a helper tool called <a href="https://pandoc.org/">pandoc</a>. I may cover this tool in a later tutorial.</em></p>
+</section>
+<section id="networking" class="level2">
+<h2>networking</h2>
+<p>your website won’t work outside your local network until you do this, but I haven’t written a guide yet, sorry. here’s the gist of it.</p>
+<ul>
+<li>set up a firewall using ufw</li>
+<li>set up port forwarding on your router</li>
+<li>don’t forget hairpin NAT</li>
+<li>get a domain name</li>
+<li>set up https</li>
+</ul>
+<p>todo: write this section, maybe even make this an entirely separate guide honestly</p>
+</section>
+<section id="containers" class="level2">
+<h2>containers</h2>
+<p>at this point, we’ll take a detour and talk about containers. everything we’ve done so far has involved making changes to system files. if you need to copy your data to a new system you’ll have to change all those system files again, and this gets more complicated the more things are installed. thankfully, many applications can now be installed as containers.</p>
+<p>a <strong>container</strong> isn’t quite a virtual machine. you’re not running a whole computer-inside-a-computer. it’s more like a facade, a fake computer with a fake filesystem and fake network. containers don’t take much memory to create, and they don’t leave junk all over the filesystem when you remove them. neat!</p>
+<p>we’ll be using <a href="https://podman.io">Podman</a>, a container host service. if you’re familiar with <a href="https://www.docker.com">Docker</a>, this is like that, but even <em>more</em> free.</p>
+<pre><code># apt install podman python3-pip
+# pip install &quot;podman-compose&lt;1.0&quot;</code></pre>
+<ul>
+<li>pip is a package manager for <a href="https://www.python.org">Python</a> programs. we install pip so that we can use it to install podman-compose.</li>
+<li><a href="https://github.com/containers/podman-compose#podman-compose">podman-compose</a> is a very handy tool that lets you store your container instructions in a script file to use later. we’ll cover this soon. I needed to specify an old version for compatibility.</li>
+<li>if you are on armbian, you may also need to install <code>uidmap</code> and <code>slirp4netns</code> manually. these are normally included with podman and are used for making fake users and fake networks, respectively.</li>
+</ul>
+<p>we’ll test Podman by running a copy of <a href="https://nginx.org">nginx</a> (pronounced ‘engine-x’). we’ll use the image published by <a href="https://hub.docker.com">Docker Hub</a>. think of an <strong>image</strong> as a casting mold. you can’t run an image directly, but you can use it to produce a filled container.</p>
+<pre><code>$ podman run --rm -p 8000:80 docker.io/library/nginx</code></pre>
+<ul>
+<li><code>podman run</code>: create a new container and start it immediately.</li>
+<li><code>--rm</code>: remove the container automatically when the main program exits.</li>
+<li><code>-p 8000:80</code>: connect port 8000 on the host to port 80 inside the container. we need permission to bind to ports less than 1024, since they’re older and have special meanings. without that permission, we can use any port between 1024 and 65535. 8000 is an arbitrary choice, and its easy to remember.</li>
+<li><code>docker.io/library/nginx</code>: this is the name of the image we’re building. this has to come last, because anything that comes after the image is instructions for the program inside the container, not for Podman. in this case we’re not giving any instructions after the image, because we want to run the default command, which is to immediately start nginx.</li>
+</ul>
+<p><span class="emoji" data-emoji="bulb">💡</span> if you get an error like “delete libpod local files to resolve”, you may need to do this extra step, then try again:</p>
+<pre><code>$ sudo rm ~/.local/share/containers</code></pre>
+<p>you should now be able to point a web browser at <a href="http://teapot.local:8000" class="uri">http://teapot.local:8000</a> and you will see nginx is running!</p>
+<p>finally, we’ll use podman-compose to save this setup. create a folder in <code>/data</code> for this container, and make a new file called <code>compose.yaml</code>.</p>
+<p>contents of <code>/data/nginx/compose.yaml</code>:</p>
+<pre><code>version: &#39;3&#39;
+services:
+  nginx:
+    image: docker.io/library/nginx
+    ports:
+    - 8000:80</code></pre>
+<p>this does the same thing as our command from before. it starts one service container, running nxing, with port 8000 on the host mapped to port 80 in the container. to run this script, type</p>
+<pre><code>$ podman-compose up -d</code></pre>
+<p>and to stop it again:</p>
+<pre><code>$ podman-compose down</code></pre>
+</section>
+<section id="database" class="level2">
+<h2>database</h2>
+<p>todo:</p>
+<ul>
+<li>explain why and how to host a database</li>
+<li>install php and mariadb</li>
+<li>configure phpmyadmin</li>
+</ul>
+</section>
+<section id="file-sharing" class="level2">
+<h2>file sharing</h2>
+<p>todo:</p>
+<ul>
+<li>install syncthing</li>
+<li>set up samba share</li>
+<li>configure nfs</li>
+<li><a href="https://github.com/filebrowser/filebrowser">FileBrowser</a></li>
+</ul>
+</section>
+<section id="apps" class="level2">
+<h2>apps</h2>
+<p>todo:</p>
+<ul>
+<li>recommend some other apps like gitea, freshrss</li>
+<li>serve apps through apache ProxyPass</li>
+<li>see also <a href="https://github.com/awesome-selfhosted/awesome-selfhosted">awesome self-hosted</a> and <a href="https://github.com/awesome-foss/awesome-sysadmin">awesome sysadmin</a> software.</li>
+</ul>
+</section>
+<section id="auth" class="level2">
+<h2>auth</h2>
+<p>todo:</p>
+<ul>
+<li>set up <a href="https://www.keycloak.org">Keycloak</a> so you can log in through the reverse proxy.</li>
+</ul>
 </section>
 </body>
 </html>

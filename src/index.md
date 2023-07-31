@@ -25,15 +25,16 @@ sound good? then let's get cooking.
 
 ## materials
 
-I'll be using a [Raspberry Pi 4b] and installing [Raspberry Pi OS]. it's also known as Raspbian, since it's based on [Debian] Linux. any Debian-like OS will work for this tutorial. if the Raspberry Pi isn't available where and when you are, some good alternatives are the [Renegade] or the [ROCK64], running [armbian] Linux.
+I'll be using a [Raspberry Pi 4b] and installing [Raspberry Pi OS] Lite (64-bit). it's also known as Raspbian, since it's based on [Debian] Linux. any Debian-like OS will work for this tutorial. if the Raspberry Pi isn't available where and when you are, some good alternatives are the [Renegade] or the [ROCK64]. If Raspbian doesn't run on your device, try [armbian].
 
 you'll also need a MicroSD card, a hard drive, and a second hard drive for backup. I recommend a 64GB MicroSD card and two 2TB hard drives. the Pi can power one hard drive via USB, but if you want to plug both in at once you'll need a powered hard drive enclosure or a powered USB hub.
 
-you can also adapt these directions to existing hardware you may already own, like an old laptop or desktop pc. you can also rent a virtual machine from a remote datacenter! the cheapest virtual machine on [DigitalOcean] right now (as of 2023 July) costs 6 USD per month, and comes with 25GB of storage. renting a machine in a datacenter means you gget the perks of high-speed internet all day and night, which is great if you are running a game server and need a fast connection. however, you'll pay 10 USD per month for each 100GB of additional storage, so it's not great if you want to host a huge media archive.
+you can also adapt these directions to existing hardware you may already own, like an old laptop or desktop pc. you can also rent a virtual machine from a remote datacenter! the cheapest virtual machine on [DigitalOcean] right now (as of 2023 July) costs 6 USD per month, and comes with 25GB of storage. renting a machine in a datacenter means you get the perks of high-speed internet all day and night, which is great if you are running a game server and need a fast connection. however, you'll pay 10 USD per month for each 100GB of additional storage, so it's not great if you want to host a huge media archive.
 
 <!-- todo: what about S3-compatible storage? -->
 
 [Raspberry Pi 4b]: https://www.raspberrypi.com
+[Raspberry Pi OS]: https://www.raspberrypi.com/software
 [Debian]: https://www.debian.org/doc
 [Renegade]: https://libre.computer/products/roc-rk3328-cc
 [ROCK64]: https://www.pine64.org/devices/single-board-computers/rock64
@@ -46,13 +47,13 @@ at some point you'll probably want to make your server available on the internet
 
 for your username, pick something short and catchy. in my experience, a typical linux username is from 3 to 8 characters long. if you have a short name like 'alice' or 'bob' you can use that. if you have a nickname online like 'azure' or 'luna' then that works too. if you have a middle name, you can use your initials, like 'jfk'. your username should be all lowercase.
 
-for your password, the most important factor is length. I know you've been told that you need to add weird symbols and stuff in it, but that rule is for older more limited systems. it's the 64-bit era, baby! the only thing that matters is how much entropy your password has. **entropy** is basically a measure of how unlikely something is to happen twice. like if I flip ten coins and you flip ten coins and we get the same sequence, the odds of that happening are 1 in 2^10, so we say that that particular sequence of flips has 10 "bits" of entropy. it's recommended that your password have about 60 to 80 bits of entropy. yikes, that's a lot of coin flips to memorize!
+for your password, the most important factor is length. maybe you've been told that you need to add weird symbols and stuff in it, but that rule is for more limited systems. it's the 64-bit era, baby! the only thing that matters is how much entropy your password has. **entropy** is basically a measure of how unlikely something is to happen by accident. like if I flip ten coins and you flip ten coins and we get the same sequence, the odds of that happening are 1 in 2^10, so we say that that particular sequence of flips has 10 'bits' of entropy. it's recommended that your password have about 60 to 80 bits of entropy. yikes, that's a lot of coin flips to memorize!
 
-luckily there's a better way. using a tool like [xkpasswd](https://xkpasswd.net/s/) or [diceware](https://theworld.com/~reinhold/diceware.html), you can convert randomness into words. using the diceware list, you can roll 25 six-sided dice to get a random 25-digit sequence, and then convert each 5 digits into a word, to get a 5-word phrase. the odds of two people getting the same 5-word phrase are 1 in 6^25, which is approximately equal to 2^64, so this password has 64 bits of entropy. that's enough to make most hackers give up and move onto an easier target. go generate a password now, and save it somewhere safe, like a password manager program, or a piece of paper tucked inside a book. don't be afraid to write things down; you can't hack a piece of paper.
+luckily there's a better way. using a tool like [xkpasswd](https://xkpasswd.net/s/) or [diceware](https://theworld.com/~reinhold/diceware.html), you can convert randomness into words. using the diceware list, you can roll 25 six-sided dice to get a random 25-digit sequence, and then convert each 5 digits into a word, to get a 5-word phrase. the odds of two people getting the same 5-word phrase are 1 in 6^25, which is approximately equal to 2^64, so this password has 64 bits of entropy. that's enough to make most hackers give up and move onto an easier target. go generate a password now, and save it somewhere safe, like a password manager program, or a piece of paper tucked inside a book. don't be afraid to write things down; sometimes paper is safer.
 
 ## operating system
 
-time to download and install your operating system. there are lots of guides on how to install Linux already, [here's](https://www.raspberrypi.com/documentation/computers/getting-started.html) one for Raspbian. I'll be using "Raspberry Pi OS Lite (64-Bit), with the default settings. with these settings, there is no remote login available; you will need to plug a keyboard and monitor directly into the pi. on the first boot, you'll be prompted to enter the username and password for the initial user. after that, you'll be given a login prompt. log in with the username and password you just set. some operating systems display nothing at a password prompt, not even stars. once you log in, you'll see some system information, and then a prompt that looks like
+time to download and install your operating system. there are lots of guides on how to install Linux already, [here's](https://www.raspberrypi.com/documentation/computers/getting-started.html) one for Raspbian. I'll be using "Raspberry Pi OS Lite (64-Bit), with the default settings. with these settings, there is no remote login available; you will need to plug a keyboard and monitor directly into the pi. on the first boot, you'll be prompted to enter the username and password for the initial user. after that, you'll be given a login prompt. log in with the username and password you just set. some operating systems display nothing at a password prompt, not even stars. once you log in, you'll see some system information, and then a prompt that looks like this:
 
 ```
 user@raspberrypi:~ $
@@ -60,8 +61,8 @@ user@raspberrypi:~ $
 
 this is a **CLI**, a command line interface. from left to right, this contains
 
-- your name
-- the machine's name
+- your name.
+- the machine's name.
 - your current directory. `~` means "home", and is short for `/home/user`.
 - a command prompt. this will be `$` if you are in user mode, or `#` if you are in admin mode.
 
@@ -78,7 +79,7 @@ if you've ever used a bot in a chatroom, you already know how to use a command l
 
 if this is your first time using a command line interface, try some of these commands now. use `nano myfile.txt` to open a text file, write some text to it, then save with ctrl-o, and exit with ctrl-x. use `ls` to look at that file, then use `cat myfile.txt` to have the computer read it back to you. pat yourself on the back, you're learning so much!
 
-soon we'll unplug the keyboard and monitor from this computer, making it a 'headless' server. before we can do that we need to run a few commands as administrator, or 'root'. we'll do this with a very powerful command called `sudo`. sudo stands for 'super user do', and it means 'do the next thing as an administrator'. you can use `sudo <whatever>` for a single command, or enter interactive mode with `sudo -i`. in interactive mode, *all* your commands will be admin commands, until you say `exit`.
+soon we'll unplug the keyboard and monitor from this computer, making it a 'headless' server. before we can do that we need to run a few commands as administrator, or 'root'. we'll do this with a very powerful command called `sudo`. sudo stands for 'super user do', and it means 'do the next thing as an administrator'. you can use `sudo <command>` for a single command, or enter interactive mode with `sudo -i`. in interactive mode, *all* your commands will be admin commands, until you say `exit`.
 
 :warning: **there is no undo button! if you say something with sudo, make sure you mean it!**
 
@@ -124,7 +125,7 @@ $ sudo -i
 # apt upgrade
 ```
 
-finally, if you're on a Raspberry Pi, then `avahi-daemon` is installed automatically. if not, you may need to install it yourself. this program broadcasts your hostname to the network, so you can log in remotely without configuring anything on your router.
+finally, if you're on a Raspberry Pi, then `avahi-daemon` is installed automatically. if not, you may need to install it yourself. this program broadcasts your hostname to the network, so you can log in remotely without configuring your router.
 
 ```
 # apt install avahi-daemon
@@ -295,3 +296,107 @@ once you've written both of those files, we can tell Apache our site is ready. b
 now go back to <http://teapot.local> and hit refresh, and you should see your new website! at this point you can go explore the world of HTML. the nice folks at [Neocities](https://neocities.org/tutorials) are helping to keep this art alive, go check them out! and remember, you can press ctrl-u to view the HTML for any page you're on.
 
 *p.s. up until this point I've been writing with pure HTML myself, but as this page is getting rather long, I'm actually switching to a helper tool called [pandoc](https://pandoc.org/). I may cover this tool in a later tutorial.*
+
+## networking
+
+your website won't work outside your local network until you do this, but I haven't written a guide yet, sorry. here's the gist of it.
+
+- set up a firewall using ufw
+- set up port forwarding on your router
+- don't forget hairpin NAT
+- get a domain name
+- set up https
+
+todo: write this section, maybe even make this an entirely separate guide honestly
+
+## containers
+
+at this point, we'll take a detour and talk about containers. everything we've done so far has involved making changes to system files. if you need to copy your data to a new system you'll have to change all those system files again, and this gets more complicated the more things are installed. thankfully, many applications can now be installed as containers.
+
+a **container** isn't quite a virtual machine. you're not running a whole computer-inside-a-computer. it's more like a facade, a fake computer with a fake filesystem and fake network. containers don't take much memory to create, and they don't leave junk all over the filesystem when you remove them. neat!
+
+we'll be using [Podman](https://podman.io), a container host service. if you're familiar with [Docker](https://www.docker.com), this is like that, but even *more* free.
+
+```
+# apt install podman python3-pip
+# pip install "podman-compose<1.0"
+```
+
+- pip is a package manager for [Python](https://www.python.org) programs. we install pip so that we can use it to install podman-compose.
+- [podman-compose](https://github.com/containers/podman-compose#podman-compose) is a very handy tool that lets you store your container instructions in a script file to use later. we'll cover this soon. I needed to specify an old version for compatibility.
+- if you are on armbian, you may also need to install `uidmap` and `slirp4netns` manually. these are normally included with podman and are used for making fake users and fake networks, respectively.
+
+we'll test Podman by running a copy of [nginx](https://nginx.org) (pronounced 'engine-x'). we'll use the image published by [Docker Hub](https://hub.docker.com). think of an **image** as a casting mold. you can't run an image directly, but you can use it to produce a filled container.
+
+```
+$ podman run --rm -p 8000:80 docker.io/library/nginx
+```
+
+- `podman run`: create a new container and start it immediately.
+- `--rm`: remove the container automatically when the main program exits.
+- `-p 8000:80`: connect port 8000 on the host to port 80 inside the container. we need permission to bind to ports less than 1024, since they're older and have special meanings. without that permission, we can use any port between 1024 and 65535. 8000 is an arbitrary choice, and its easy to remember.
+- `docker.io/library/nginx`: this is the name of the image we're building. this has to come last, because anything that comes after the image is instructions for the program inside the container, not for Podman. in this case we're not giving any instructions after the image, because we want to run the default command, which is to immediately start nginx.
+
+:bulb: if you get an error like "delete libpod local files to resolve", you may need to do this extra step, then try again:
+
+```
+$ sudo rm ~/.local/share/containers
+```
+
+you should now be able to point a web browser at <http://teapot.local:8000> and you will see nginx is running!
+
+finally, we'll use podman-compose to save this setup. create a folder in `/data` for this container, and make a new file called `compose.yaml`.
+
+contents of `/data/nginx/compose.yaml`:
+
+```
+version: '3'
+services:
+  nginx:
+    image: docker.io/library/nginx
+    ports:
+    - 8000:80
+```
+
+this does the same thing as our command from before. it starts one service container, running nxing, with port 8000 on the host mapped to port 80 in the container. to run this script, type
+
+```
+$ podman-compose up -d
+```
+
+and to stop it again:
+
+```
+$ podman-compose down
+```
+
+## database
+
+todo:
+
+- explain why and how to host a database
+- install php and mariadb
+- configure phpmyadmin
+
+## file sharing
+
+todo:
+
+- install syncthing
+- set up samba share
+- configure nfs
+- [FileBrowser](https://github.com/filebrowser/filebrowser)
+
+## apps
+
+todo:
+
+- recommend some other apps like gitea, freshrss
+- serve apps through apache ProxyPass
+- see also [awesome self-hosted](https://github.com/awesome-selfhosted/awesome-selfhosted) and [awesome sysadmin](https://github.com/awesome-foss/awesome-sysadmin) software.
+
+## auth
+
+todo: 
+
+- set up [Keycloak](https://www.keycloak.org) so you can log in through the reverse proxy.
