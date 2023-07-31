@@ -4,7 +4,7 @@ all: docs/index.html docs/style.css
 
 #rules
 
-docs/index.html: src/index.md
+docs/index.html: src/index.md src/nav.html
 	mkdir -p docs
 	pandoc \
 		-o docs/index.html \
@@ -13,6 +13,7 @@ docs/index.html: src/index.md
 		--section-divs \
 		--css style.css \
 		--no-highlight \
+		--include-before-body src/nav.html \
 		--from markdown+emoji \
 		src/index.md
 
