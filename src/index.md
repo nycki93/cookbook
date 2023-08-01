@@ -1,5 +1,5 @@
 ---
-title: klay's simple cookbook for Linux, [v0.9.0](https://github.com/klaymu/self-host)
+title: klay's simple cookbook for Linux, [v0.9.1](https://github.com/klaymu/self-host)
 ...
 
 ## introduction
@@ -116,7 +116,7 @@ the hostname is under System Options -> Hostname. I set mine to 'teapot'.
 
 if your machine is plugged directly into your home router with a patch cable, you already have network access, otherwise set up wireless with System Options -> Wireless LAN.
 
-to log in remotely, go to Interface Options -> SSH.
+to enable remote login, go to Interface Options -> SSH.
 
 select 'Finish'. you'll be prompted to reboot, but don't yet, we'll reboot later after installing some updates. in Debian Linux, we update packages using a tool called `apt`. `apt update` checks for updated packages, and `apt upgrade` installs them. run both these commands now, using the interactive version of `sudo`.
 ```
@@ -157,7 +157,7 @@ there are different formats for a data disk. the format determines exactly where
 
 first we need to identify the disk's device file. in Linux, everything you can read or write to is treated as a file, including a USB device like an external disk. note that this device file is *not* the same as a filesystem mount. we'll cover mounting later.
 
-with the data disk unplugged, run the command `fd`. plug the disk in, and run `fd` again. compare its output to the previous run. there should be exactly one new entry, and it should look like `/dev/sda` or `/dev/sda2`. if you're not sure which disk it is, don't risk it, ask a friend for help.
+with the data disk unplugged, run the command `df`. plug the disk in, and run `df` again. compare its output to the previous run. there should be exactly one new entry, and it should look like `/dev/sda` or `/dev/sda2`. if you're not sure which disk it is, don't risk it, ask a friend for help.
 
 <!-- todo: where can you find a friend to ask? -->
 
