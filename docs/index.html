@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="generator" content="pandoc" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-  <title>klay’s simple cookbook for Linux, v0.9.0</title>
+  <title>klay’s simple cookbook for Linux, v0.9.1</title>
   <style type="text/css">
       code{white-space: pre-wrap;}
       span.smallcaps{font-variant: small-caps;}
@@ -18,7 +18,7 @@
 <a href="/">home</a>
 </nav>
 <header id="title-block-header">
-<h1 class="title">klay’s simple cookbook for Linux, <a href="https://github.com/klaymu/self-host">v0.9.0</a></h1>
+<h1 class="title">klay’s simple cookbook for Linux, <a href="https://github.com/klaymu/self-host">v0.9.1</a></h1>
 </header>
 <nav id="TOC">
 <ul>
@@ -129,7 +129,7 @@
 <pre><code>$ sudo raspi-config</code></pre>
 <p>the hostname is under System Options -&gt; Hostname. I set mine to ‘teapot’.</p>
 <p>if your machine is plugged directly into your home router with a patch cable, you already have network access, otherwise set up wireless with System Options -&gt; Wireless LAN.</p>
-<p>to log in remotely, go to Interface Options -&gt; SSH.</p>
+<p>to enable remote login, go to Interface Options -&gt; SSH.</p>
 <p>select ‘Finish’. you’ll be prompted to reboot, but don’t yet, we’ll reboot later after installing some updates. in Debian Linux, we update packages using a tool called <code>apt</code>. <code>apt update</code> checks for updated packages, and <code>apt upgrade</code> installs them. run both these commands now, using the interactive version of <code>sudo</code>.</p>
 <pre><code>$ sudo -i
 # apt update
@@ -149,7 +149,7 @@
 <p>the Raspberry Pi uses a MicroSD card as the operating system disk. it’s convenient; if the OS breaks you can just pull its brain out, factory reset it, and pop it back in. however, I don’t want to store all my user data on that brain card. I think it’s better if you have a secondary disk that contains <em>only</em> the stuff you create yourself. that way if something goes wrong and you have to reset the brain card, you don’t lose any of your personal data.</p>
 <p>there are different formats for a data disk. the format determines exactly where the data and metadata will appear in each ‘chunk’ of the disk. Windows typically uses <a href="https://en.wikipedia.org/wiki/NTFS">NTFS</a>, which supports metadata for ownership and last modified time, but not for fine-grained access like whether a file is shared with guests. Linux uses a format that does allow this fine-grained access, called <a href="https://en.wikipedia.org/wiki/Ext4">ext4</a>, so that’s what we need to format the data disk as.</p>
 <p>first we need to identify the disk’s device file. in Linux, everything you can read or write to is treated as a file, including a USB device like an external disk. note that this device file is <em>not</em> the same as a filesystem mount. we’ll cover mounting later.</p>
-<p>with the data disk unplugged, run the command <code>fd</code>. plug the disk in, and run <code>fd</code> again. compare its output to the previous run. there should be exactly one new entry, and it should look like <code>/dev/sda</code> or <code>/dev/sda2</code>. if you’re not sure which disk it is, don’t risk it, ask a friend for help.</p>
+<p>with the data disk unplugged, run the command <code>df</code>. plug the disk in, and run <code>df</code> again. compare its output to the previous run. there should be exactly one new entry, and it should look like <code>/dev/sda</code> or <code>/dev/sda2</code>. if you’re not sure which disk it is, don’t risk it, ask a friend for help.</p>
 <!-- todo: where can you find a friend to ask? -->
 <p><span class="emoji" data-emoji="warning">⚠️</span> <strong>warning! this will erase everything on the disk!</strong></p>
 <p>format the disk, and label it. this will make it easier to mount later.</p>
