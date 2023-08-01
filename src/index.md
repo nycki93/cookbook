@@ -1,5 +1,5 @@
 ---
-title: klay's simple cookbook for Linux, [v0.9.1](https://github.com/klaymu/self-host)
+title: klay's simple cookbook for Linux, [v0.9.2](https://github.com/klaymu/self-host)
 ...
 
 ## introduction
@@ -53,7 +53,7 @@ luckily there's a better way. using a tool like [xkpasswd](https://xkpasswd.net/
 
 ## operating system
 
-time to download and install your operating system. there are lots of guides on how to install Linux already, [here's](https://www.raspberrypi.com/documentation/computers/getting-started.html) one for Raspbian. I'll be using "Raspberry Pi OS Lite (64-Bit), with the default settings. with these settings, there is no remote login available; you will need to plug a keyboard and monitor directly into the pi. on the first boot, you'll be prompted to enter the username and password for the initial user. after that, you'll be given a login prompt. log in with the username and password you just set. some operating systems display nothing at a password prompt, not even stars. once you log in, you'll see some system information, and then a prompt that looks like this:
+time to download and install your operating system. there are lots of guides on how to install Linux already, [here's](https://www.raspberrypi.com/documentation/computers/getting-started.html) one for Raspbian. I'll be using Raspberry Pi OS Lite (64-Bit), with the default settings. with these settings, there is no remote login available; you will need to plug a keyboard and monitor directly into the pi. on the first boot, you'll be prompted to enter the username and password for the initial user. after that, you'll be given a login prompt. log in with the username and password you just set. some operating systems display nothing at a password prompt, not even stars. once you log in, you'll see some system information, and then a prompt that looks like this:
 
 ```
 user@raspberrypi:~ $
