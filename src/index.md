@@ -1,5 +1,5 @@
 ---
-title: klay's simple cookbook for Linux, [v0.9.2](https://github.com/klaymu/self-host)
+title: klay's simple cookbook for Linux, [v0.9.3](https://github.com/klaymu/self-host)
 ...
 
 ## introduction
@@ -317,14 +317,14 @@ if you do everything right, the only server that will be available to the outsid
 
 :warning: **you _did_ pick a long, random passphrase, right? if not, go back and do that _now_.**
 
-however, for a little extra safety, we'll use `ufw` and `fail2ban` to limit what kind of messages teapot will answer. `ufw` allows us to ignore bad requests, and `fail2ban` allows us to block people or bots who make too many wrong guesses. 
+however, for a little extra safety, we'll use `ufw` to limit what kind of messages teapot will answer. ufw stands for 'Ubuntu firewall' but it works on other systems besides Ubuntu now, so sometimes it's called 'uncomplicated firewall' instead.
 
 :bulb: I got this information almost verbatim from the [Raspberry Pi Foundation](https://www.raspberrypi.com/documentation/computers/configuration.html), seriously they're awesome people.
 
-install `ufw` and `fail2ban`. unlike other system services, these don't start automatically, since you can lock yourself out with them. that's why it's important we configure these *before* changing settings on the router.
+install `ufw`. unlike other system services, this doesn't start automatically, since you can lock yourself out with it. that's why it's important we configure it *before* changing settings on the router.
 
 ```
-# apt install ufw fail2ban
+# apt install ufw
 ```
 
 we'll also need to know the router's local address. we can find this with the `ip` function.
@@ -388,9 +388,9 @@ $ ssh-keygen -t ed25519 -C "my laptop"
 
 follow the prompts to generate a private key. it will be saved in `/home/user/.ssh` (or your operating system's equivalent location), as well as a public key with a .pub file extension. you can add a passphrase during key generation, this is highly recommended if anyone else has access to your computer!
 
-:warning: **the private key should never leave this computer.**
-
 we'll need to get the public key, the one ending in .pub, onto the server somehow so it can recognize us. public keys don't need to be kept secret, so use any type of file transfer available to you. you could copy it to a USB drive and plug it into the server, or copy it by hand, or even send it to yourself over the public internet. once you get it to the server, create the file `~/.ssh/authorized_keys`. on a new line, **copy the full contents of the .pub file into the authorized_keys file.**
+
+:bulb: if you need to connect from multiple devices, I recommend repeating these steps for each device, rather than copying your private key between devices. that way you don't have to worry about accidentally leaking your private key. you can add as many public keys to `authorized_keys` as you want!
 
 at this time, try logging into the server from the newly-authorized client. it will ask for your key's passphrase if you set one, but it _won't_ ask for your account passphrase, since you already authenticated yourself by having the private key. you will still need to type your password to use sudo though, just in case.
 
@@ -438,7 +438,7 @@ while we're configuring the router, we'll enable **hairpin NAT**, also known as 
 
 - Go to IP -> Firewall -> NAT -> New Rule (again):
   - Chain: srcnat
-  - Src. Address: x.x.x.0/24 (first three bytes match teapot's local IP)
+  - Src. Address: 192.168.88.0/24 (use your own subnet)
   - Dst. Address: \<teapot's local IP address>
   - Protocol: 6 (tcp)
   - Out. Interface List: LAN
