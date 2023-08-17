@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="generator" content="pandoc" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-  <title>klay’s simple cookbook for Linux, v0.9.2</title>
+  <title>klay’s simple cookbook for Linux, v0.10.0</title>
   <style type="text/css">
       code{white-space: pre-wrap;}
       span.smallcaps{font-variant: small-caps;}
@@ -18,7 +18,7 @@
 <a href="/">home</a>
 </nav>
 <header id="title-block-header">
-<h1 class="title">klay’s simple cookbook for Linux, <a href="https://github.com/klaymu/self-host">v0.9.2</a></h1>
+<h1 class="title">klay’s simple cookbook for Linux, <a href="https://github.com/klaymu/self-host">v0.10.0</a></h1>
 </header>
 <nav id="TOC">
 <ul>
@@ -40,9 +40,11 @@
 <li><a href="#port-forwarding">port forwarding</a></li>
 <li><a href="#https">https</a></li>
 </ul></li>
+<li><a href="#file-sharing">file sharing</a><ul>
+<li><a href="#sync">sync</a></li>
+</ul></li>
 <li><a href="#containers">containers</a></li>
 <li><a href="#database">database</a></li>
-<li><a href="#file-sharing">file sharing</a></li>
 <li><a href="#apps">apps</a></li>
 <li><a href="#auth">auth</a></li>
 </ul>
@@ -140,8 +142,6 @@
 <pre><code># reboot</code></pre>
 <p>after a minute, you should now be able to log in remotely from another computer, using</p>
 <pre><code>$ ssh user@teapot</code></pre>
-<p>or</p>
-<pre><code>$ ssh user@teapot.local</code></pre>
 <p>if this works, congrats! you can now unplug the keyboard and monitor. you’ve created a headless server.</p>
 </section>
 <section id="format-storage" class="level2">
@@ -250,10 +250,10 @@ lorem ipsum dolor sit amet</code></pre>
 <h3>firewall</h3>
 <p>if you do everything right, the only server that will be available to the outside world is our little teapot, and only people with an account will be able to get in.</p>
 <p><span class="emoji" data-emoji="warning">⚠️</span> <strong>you <em>did</em> pick a long, random passphrase, right? if not, go back and do that <em>now</em>.</strong></p>
-<p>however, for a little extra safety, we’ll use <code>ufw</code> and <code>fail2ban</code> to limit what kind of messages teapot will answer. <code>ufw</code> allows us to ignore bad requests, and <code>fail2ban</code> allows us to block people or bots who make too many wrong guesses.</p>
+<p>however, for a little extra safety, we’ll use <code>ufw</code> to limit what kind of messages teapot will answer. ufw stands for ‘Ubuntu firewall’ but it works on other systems besides Ubuntu now, so sometimes it’s called ‘uncomplicated firewall’ instead.</p>
 <p><span class="emoji" data-emoji="bulb">💡</span> I got this information almost verbatim from the <a href="https://www.raspberrypi.com/documentation/computers/configuration.html">Raspberry Pi Foundation</a>, seriously they’re awesome people.</p>
-<p>install <code>ufw</code> and <code>fail2ban</code>. unlike other system services, these don’t start automatically, since you can lock yourself out with them. that’s why it’s important we configure these <em>before</em> changing settings on the router.</p>
-<pre><code># apt install ufw fail2ban</code></pre>
+<p>install <code>ufw</code>. unlike other system services, this doesn’t start automatically, since you can lock yourself out with it. that’s why it’s important we configure it <em>before</em> changing settings on the router.</p>
+<pre><code># apt install ufw</code></pre>
 <p>we’ll also need to know the router’s local address. we can find this with the <code>ip</code> function.</p>
 <pre><code>$ ip route</code></pre>
 <p>the first line of the output should look like this:</p>
@@ -279,8 +279,8 @@ lorem ipsum dolor sit amet</code></pre>
 <p>on your laptop or other client device, generate an ssh key. if you’re on Linux, Mac OS, or Windows 10, this is probably named <code>ssh-keygen</code>. you can also add a comment to the key, so you remember which device it belongs to.</p>
 <pre><code>$ ssh-keygen -t ed25519 -C &quot;my laptop&quot;</code></pre>
 <p>follow the prompts to generate a private key. it will be saved in <code>/home/user/.ssh</code> (or your operating system’s equivalent location), as well as a public key with a .pub file extension. you can add a passphrase during key generation, this is highly recommended if anyone else has access to your computer!</p>
-<p><span class="emoji" data-emoji="warning">⚠️</span> <strong>the private key should never leave this computer.</strong></p>
 <p>we’ll need to get the public key, the one ending in .pub, onto the server somehow so it can recognize us. public keys don’t need to be kept secret, so use any type of file transfer available to you. you could copy it to a USB drive and plug it into the server, or copy it by hand, or even send it to yourself over the public internet. once you get it to the server, create the file <code>~/.ssh/authorized_keys</code>. on a new line, <strong>copy the full contents of the .pub file into the authorized_keys file.</strong></p>
+<p><span class="emoji" data-emoji="bulb">💡</span> if you need to connect from multiple devices, I recommend repeating these steps for each device, rather than copying your private key between devices. that way you don’t have to worry about accidentally leaking your private key. you can add as many public keys to <code>authorized_keys</code> as you want!</p>
 <p>at this time, try logging into the server from the newly-authorized client. it will ask for your key’s passphrase if you set one, but it <em>won’t</em> ask for your account passphrase, since you already authenticated yourself by having the private key. you will still need to type your password to use sudo though, just in case.</p>
 <p>if that went well, you can now disable password-based auth completely. as admin, open <code>/etc/ssh/sshd_config</code> and make sure these settings are set to ‘no’:</p>
 <pre><code>ChallengeResponseAuthentication no
@@ -321,7 +321,7 @@ UsePAM no</code></pre>
 <li>Go to IP -&gt; Firewall -&gt; NAT -&gt; New Rule (again):
 <ul>
 <li>Chain: srcnat</li>
-<li>Src. Address: x.x.x.0/24 (first three bytes match teapot’s local IP)</li>
+<li>Src. Address: 192.168.88.0/24 (use your own subnet)</li>
 <li>Dst. Address: &lt;teapot’s local IP address&gt;</li>
 <li>Protocol: 6 (tcp)</li>
 <li>Out. Interface List: LAN</li>
@@ -335,7 +335,48 @@ UsePAM no</code></pre>
 <p>todo:</p>
 <ul>
 <li>get a domain name from a service like <a href="https://afraid.org" class="uri">https://afraid.org</a></li>
-<li>set up https with a service like LetsEncrypt</li>
+<li>set up https with a service like LetsEncrypt
+<ul>
+<li>apt install certbot python3-certbot-apache</li>
+<li>certbot certonly –apache</li>
+<li>a2enmod rewrite ssl</li>
+</ul></li>
+</ul>
+</section>
+</section>
+<section id="file-sharing" class="level2">
+<h2>file sharing</h2>
+<p>another neat thing you can do with your server is use it to store stuff! there are some all-in-one solutions for this such as <a href="https://nextcloud.com/">NextCloud</a>, but right now that’s overkill for me; I want to install simple tools to solve simple problems.</p>
+<section id="sync" class="level3">
+<h3>sync</h3>
+<p><a href="https://syncthing.net/">Syncthing</a> is a simple tool for duplicating some folders across multiple devices. maybe you want all your photos to be automatically duplicated from your phone to your server, or you have some game save files that you want to be copied between two gaming pcs, or you have some other documents that you access frequently from your laptop and your desktop. Syncthing is one of those rare and beautiful gems of free software that ‘just works’.</p>
+<p>as admin, install the service:</p>
+<pre><code># apt install syncthing
+# ufw allow syncthing</code></pre>
+<p>as your normal user account, enable the service for yourself:</p>
+<pre><code>$ systemctl --user enable syncthing
+$ systemctl --user start syncthing</code></pre>
+<p>that’s it! Syncthing is now installed and running! you can configure Syncthing with a web app that runs on port 8384. if you’re connected remotely via ssh, use this trick to get access. type the special sequence [enter], tilde (~), C (shift+c), and you’ll get a prompt like</p>
+<pre><code>ssh&gt;</code></pre>
+<p>we’ll use this prompt to set up a temporary tunnel. a <strong>tunnel</strong> allows you to bind a port on your client machine to a client on the server. specifically, a tunnel passes some traffic through your encrypted ssh connection, as opposed to passing it through a browser via http or https. this way you can quickly get access to an application running on your server, without exposing it to the whole internet. for this example, we’ll bind the client’s port 8000 to localhost:8384 on the server.</p>
+<pre><code>ssh&gt; -L 8000:localhost:8384</code></pre>
+<p>now, open <a href="http://localhost:8000" class="uri">http://localhost:8000</a> on your client, and you should have access to the Syncthing console running on the server!</p>
+<p><span class="emoji" data-emoji="bulb">💡</span> you can also send this command to ssh at login time. for instance:</p>
+<pre><code>$ ssh user@teapot -L 8000:localhost:8384</code></pre>
+<hr />
+<p>syncthing todo:</p>
+<ul>
+<li>explain my personal folder setup</li>
+<li>versioning options, and how this is not the same as a proper backup (but its close)</li>
+</ul>
+<p>file sharing todo:</p>
+<ul>
+<li>set up samba share</li>
+<li>configure nfs</li>
+<li><a href="https://github.com/filebrowser/filebrowser">FileBrowser</a>
+<ul>
+<li>set up auth before exposing this to the internet, I think</li>
+</ul></li>
 </ul>
 </section>
 </section>
@@ -382,16 +423,6 @@ services:
 <li>explain why and how to host a database</li>
 <li>install php and mariadb</li>
 <li>configure phpmyadmin</li>
-</ul>
-</section>
-<section id="file-sharing" class="level2">
-<h2>file sharing</h2>
-<p>todo:</p>
-<ul>
-<li>install syncthing</li>
-<li>set up samba share</li>
-<li>configure nfs</li>
-<li><a href="https://github.com/filebrowser/filebrowser">FileBrowser</a></li>
 </ul>
 </section>
 <section id="apps" class="level2">

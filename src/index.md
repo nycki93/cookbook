@@ -1,5 +1,5 @@
 ---
-title: klay's simple cookbook for Linux, [v0.9.3](https://github.com/klaymu/self-host)
+title: klay's simple cookbook for Linux, [v0.10.0](https://github.com/klaymu/self-host)
 ...
 
 ## introduction
@@ -142,11 +142,6 @@ after a minute, you should now be able to log in remotely from another computer,
 ```
 $ ssh user@teapot
 ```
-or
-```
-$ ssh user@teapot.local
-```
-
 if this works, congrats! you can now unplug the keyboard and monitor. you've created a headless server.
 
 ## format storage
@@ -452,6 +447,66 @@ todo:
 
 - get a domain name from a service like <https://afraid.org>
 - set up https with a service like LetsEncrypt
+  - apt install certbot python3-certbot-apache
+  - certbot certonly --apache
+  - a2enmod rewrite ssl
+
+
+## file sharing
+
+another neat thing you can do with your server is use it to store stuff! there are some all-in-one solutions for this such as [NextCloud](https://nextcloud.com/), but right now that's overkill for me; I want to install simple tools to solve simple problems.
+
+### sync
+
+[Syncthing](https://syncthing.net/) is a simple tool for duplicating some folders across multiple devices. maybe you want all your photos to be automatically duplicated from your phone to your server, or you have some game save files that you want to be copied between two gaming pcs, or you have some other documents that you access frequently from your laptop and your desktop. Syncthing is one of those rare and beautiful gems of free software that 'just works'.
+
+as admin, install the service:
+
+```
+# apt install syncthing
+# ufw allow syncthing
+```
+
+as your normal user account, enable the service for yourself:
+
+```
+$ systemctl --user enable syncthing
+$ systemctl --user start syncthing
+```
+
+that's it! Syncthing is now installed and running! you can configure Syncthing with a web app that runs on port 8384. if you're connected remotely via ssh, use this trick to get access. type the special sequence \[enter], tilde (~), C (shift+c), and you'll get a prompt like
+
+```
+ssh>
+```
+
+we'll use this prompt to set up a temporary tunnel. a **tunnel** allows you to bind a port on your client machine to a client on the server. specifically, a tunnel passes some traffic through your encrypted ssh connection, as opposed to passing it through a browser via http or https. this way you can quickly get access to an application running on your server, without exposing it to the whole internet. for this example, we'll bind the client's port 8000 to localhost:8384 on the server.
+
+```
+ssh> -L 8000:localhost:8384
+```
+
+now, open <http://localhost:8000> on your client, and you should have access to the Syncthing console running on the server!
+
+:bulb: you can also send this command to ssh at login time. for instance:
+
+```
+$ ssh user@teapot -L 8000:localhost:8384
+```
+
+* * *
+
+syncthing todo:
+
+- explain my personal folder setup
+- versioning options, and how this is not the same as a proper backup (but its close)
+
+file sharing todo:
+
+- set up samba share
+- configure nfs
+- [FileBrowser](https://github.com/filebrowser/filebrowser)
+  - set up auth before exposing this to the internet, I think
 
 ## containers
 
@@ -522,14 +577,6 @@ todo:
 - install php and mariadb
 - configure phpmyadmin
 
-## file sharing
-
-todo:
-
-- install syncthing
-- set up samba share
-- configure nfs
-- [FileBrowser](https://github.com/filebrowser/filebrowser)
 
 ## apps
 
