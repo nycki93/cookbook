@@ -1,5 +1,5 @@
 ---
-title: klay's simple cookbook for Linux, [v0.10.0](https://github.com/klaymu/self-host)
+title: klay's simple cookbook for Linux, [v0.10.1](https://github.com/klaymu/self-host)
 ...
 
 ## introduction
@@ -389,12 +389,10 @@ we'll need to get the public key, the one ending in .pub, onto the server someho
 
 at this time, try logging into the server from the newly-authorized client. it will ask for your key's passphrase if you set one, but it _won't_ ask for your account passphrase, since you already authenticated yourself by having the private key. you will still need to type your password to use sudo though, just in case.
 
-if that went well, you can now disable password-based auth completely. as admin, open `/etc/ssh/sshd_config` and make sure these settings are set to 'no':
+if that went well, you can now disable password-based auth completely. as admin, open `/etc/ssh/sshd_config` and make sure this is set to 'no':
 
 ```
-ChallengeResponseAuthentication no
 PasswordAuthentication no
-UsePAM no
 ```
 
 save the file, and restart the ssh service:

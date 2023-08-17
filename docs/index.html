@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="generator" content="pandoc" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-  <title>klay’s simple cookbook for Linux, v0.10.0</title>
+  <title>klay’s simple cookbook for Linux, v0.10.1</title>
   <style type="text/css">
       code{white-space: pre-wrap;}
       span.smallcaps{font-variant: small-caps;}
@@ -18,7 +18,7 @@
 <a href="/">home</a>
 </nav>
 <header id="title-block-header">
-<h1 class="title">klay’s simple cookbook for Linux, <a href="https://github.com/klaymu/self-host">v0.10.0</a></h1>
+<h1 class="title">klay’s simple cookbook for Linux, <a href="https://github.com/klaymu/self-host">v0.10.1</a></h1>
 </header>
 <nav id="TOC">
 <ul>
@@ -282,10 +282,8 @@ lorem ipsum dolor sit amet</code></pre>
 <p>we’ll need to get the public key, the one ending in .pub, onto the server somehow so it can recognize us. public keys don’t need to be kept secret, so use any type of file transfer available to you. you could copy it to a USB drive and plug it into the server, or copy it by hand, or even send it to yourself over the public internet. once you get it to the server, create the file <code>~/.ssh/authorized_keys</code>. on a new line, <strong>copy the full contents of the .pub file into the authorized_keys file.</strong></p>
 <p><span class="emoji" data-emoji="bulb">💡</span> if you need to connect from multiple devices, I recommend repeating these steps for each device, rather than copying your private key between devices. that way you don’t have to worry about accidentally leaking your private key. you can add as many public keys to <code>authorized_keys</code> as you want!</p>
 <p>at this time, try logging into the server from the newly-authorized client. it will ask for your key’s passphrase if you set one, but it <em>won’t</em> ask for your account passphrase, since you already authenticated yourself by having the private key. you will still need to type your password to use sudo though, just in case.</p>
-<p>if that went well, you can now disable password-based auth completely. as admin, open <code>/etc/ssh/sshd_config</code> and make sure these settings are set to ‘no’:</p>
-<pre><code>ChallengeResponseAuthentication no
-PasswordAuthentication no
-UsePAM no</code></pre>
+<p>if that went well, you can now disable password-based auth completely. as admin, open <code>/etc/ssh/sshd_config</code> and make sure this is set to ‘no’:</p>
+<pre><code>PasswordAuthentication no</code></pre>
 <p>save the file, and restart the ssh service:</p>
 <pre><code># service ssh reload</code></pre>
 <p>it should now be impossible to login without an authorized key. if you want to authorize more devices, repeat these steps for each device. each device should have its own private key. never let a private key leave the device that created it. if you accidentally copy a private key, remove it from authorized_keys and create a new one to replace it.</p>
