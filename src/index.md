@@ -1,5 +1,5 @@
 ---
-title: klay's simple cookbook for Linux, [v0.10.1](https://github.com/klaymu/self-host)
+title: nycki's simple cookbook for Linux, [v0.10.2](https://github.com/nycki93/cookbook)
 ...
 
 ## introduction
